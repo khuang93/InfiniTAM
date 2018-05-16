@@ -1,0 +1,18 @@
+var searchData=
+[
+  ['deallocateremovedsurfels',['DeallocateRemovedSurfels',['../classITMLib_1_1ITMSurfelScene.html#a356881d39521e6d7ac6e4fbb6e5e29ad',1,'ITMLib::ITMSurfelScene']]],
+  ['densify',['densify',['../classMiniSlamGraph_1_1SparseBlockMatrix.html#a730b9b36dec85c4dd21c7a17ed1dac97',1,'MiniSlamGraph::SparseBlockMatrix::densify()'],['../classMiniSlamGraph_1_1SparseRegularBlockMatrix.html#abcefa2b3ed5cefa04250d6cbabac6fd7',1,'MiniSlamGraph::SparseRegularBlockMatrix::densify()']]],
+  ['depthfiltering',['DepthFiltering',['../classITMLib_1_1ITMViewBuilder__CPU.html#a45d90d77d88597e2357654b3af72891c',1,'ITMLib::ITMViewBuilder_CPU::DepthFiltering()'],['../classITMLib_1_1ITMViewBuilder__CUDA.html#a7c811418adfc810b32d58f6da1b6925c',1,'ITMLib::ITMViewBuilder_CUDA::DepthFiltering()'],['../classITMLib_1_1ITMViewBuilder.html#ae3ec1ab0bdf706c959d14920f99cd329',1,'ITMLib::ITMViewBuilder::DepthFiltering()']]],
+  ['depthtouchar4',['DepthToUchar4',['../classITMLib_1_1IITMVisualisationEngine.html#a9cdb3f6ba837b82f81187e94cae77927',1,'ITMLib::IITMVisualisationEngine']]],
+  ['det',['det',['../classORUtils_1_1Matrix3.html#ac679b8785f6ff300f0203ead3b11f7b6',1,'ORUtils::Matrix3']]],
+  ['determinant',['Determinant',['../classORUtils_1_1GenericCholesky.html#a7c56558f274f331f16e2bf26dfecf314',1,'ORUtils::GenericCholesky']]],
+  ['deviceptr',['DEVICEPTR',['../classORUtils_1_1MemoryBlock.html#a693d22a44d4695ef1a88c36c6cb84689',1,'ORUtils::MemoryBlock::DEVICEPTR(T)*data_cpu'],['../classORUtils_1_1MemoryBlock.html#af70a6e89bc15cabb716b4dbed0739f49',1,'ORUtils::MemoryBlock::DEVICEPTR(T)*data_cuda'],['../classORUtils_1_1MemoryBlock.html#acc1d95ad40a8951533432755fb42c69a',1,'ORUtils::MemoryBlock::DEVICEPTR(T)*GetData(MemoryDeviceType memoryType)'],['../classORUtils_1_1MemoryBlock.html#a11d264cac8f2947344e4cf06f24c3da5',1,'ORUtils::MemoryBlock::DEVICEPTR(T)*GetData(MemoryDeviceType memoryType) const ']]],
+  ['diag',['diag',['../classMiniSlamGraph_1_1Matrix.html#a4f813a5066ce8cef6f8740b48bfbdf65',1,'MiniSlamGraph::Matrix::diag(int i) const =0'],['../classMiniSlamGraph_1_1Matrix.html#a08bf0a5a37ac58034b2744f4daf81fc6',1,'MiniSlamGraph::Matrix::diag(int i)=0'],['../classMiniSlamGraph_1_1MatrixSymPosDef.html#a77f61dd41afa3dea2f279eb5e0797f5c',1,'MiniSlamGraph::MatrixSymPosDef::diag(int i) const '],['../classMiniSlamGraph_1_1MatrixSymPosDef.html#aee401edd8d6fedbe29e3a305f2720690',1,'MiniSlamGraph::MatrixSymPosDef::diag(int i)']]],
+  ['dot',['dot',['../namespaceORUtils.html#a4879f1533341bcf99da0cb946f96e377',1,'ORUtils']]],
+  ['downloadfromglobalmemory',['DownloadFromGlobalMemory',['../classITMLib_1_1ITMSwappingEngine__Metal_3_01TVoxel_00_01ITMVoxelBlockHash_01_4.html#a91ecd5890b04e61773db08a244872b8d',1,'ITMLib::ITMSwappingEngine_Metal&lt; TVoxel, ITMVoxelBlockHash &gt;']]],
+  ['dquaternion_5fdrotationmatrix',['dQuaternion_dRotationMatrix',['../classMiniSlamGraph_1_1QuaternionHelpers.html#af0ef2bac54e5508372e4823d417c8f1f',1,'MiniSlamGraph::QuaternionHelpers']]],
+  ['drawpixelcolour',['drawPixelColour',['../ITMVisualisationEngine__Shared_8h.html#a2b3b208e63b5111e4bec2e2f5d16c5ca',1,'ITMVisualisationEngine_Shared.h']]],
+  ['drawpixelconfidence',['drawPixelConfidence',['../ITMVisualisationEngine__Shared_8h.html#a2063ad99b00707b46b714ab43c48443b',1,'ITMVisualisationEngine_Shared.h']]],
+  ['drawpixelgrey',['drawPixelGrey',['../ITMVisualisationEngine__Shared_8h.html#a9321a768d4aa3ba2273f71001dcefba6',1,'ITMVisualisationEngine_Shared.h']]],
+  ['drawpixelnormal',['drawPixelNormal',['../ITMVisualisationEngine__Shared_8h.html#af5715f520fddd6643ab1eb17c7fad99d',1,'ITMVisualisationEngine_Shared.h']]]
+];

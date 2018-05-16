@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['rcm_5fconfidenceweightedaverage',['RCM_CONFIDENCEWEIGHTEDAVERAGE',['../namespaceITMLib.html#af01838777874aa7b500fa1c313282da3a7dfa6f0b26cde4456fb23b6bb3b1f40b',1,'ITMLib']]],
+  ['rcm_5fdistance',['RCM_DISTANCE',['../namespaceITMLib.html#af01838777874aa7b500fa1c313282da3a3ec4cb6b04db2d5cdeb854285ef49bda',1,'ITMLib']]],
+  ['relocalisation',['RELOCALISATION',['../classITMLib_1_1ITMActiveMapManager.html#ab01b5f41aca6c422d5b68938c3d6e757a1202b833d41ac277d7b2743cb115ebdb',1,'ITMLib::ITMActiveMapManager']]],
+  ['render_5fcolour',['RENDER_COLOUR',['../classITMLib_1_1ITMSurfelVisualisationEngine.html#a1e9d5d8f6dce32d19d83379cc6b27d3aa5a918d87b4a505c74c165dc6cd6b471a',1,'ITMLib::ITMSurfelVisualisationEngine']]],
+  ['render_5fcolour_5ffrom_5fconfidence',['RENDER_COLOUR_FROM_CONFIDENCE',['../classITMLib_1_1IITMVisualisationEngine.html#aba39e88d75023a0656c849ebd85d33a4a4c3f08c93865fba14b76f3045ac37ba6',1,'ITMLib::IITMVisualisationEngine']]],
+  ['render_5fcolour_5ffrom_5fnormal',['RENDER_COLOUR_FROM_NORMAL',['../classITMLib_1_1IITMVisualisationEngine.html#aba39e88d75023a0656c849ebd85d33a4a2e3b4167e23d086a694d6fe784bde3cf',1,'ITMLib::IITMVisualisationEngine']]],
+  ['render_5fcolour_5ffrom_5fvolume',['RENDER_COLOUR_FROM_VOLUME',['../classITMLib_1_1IITMVisualisationEngine.html#aba39e88d75023a0656c849ebd85d33a4a4b1b16241d5f8392aa4cf446499cadf0',1,'ITMLib::IITMVisualisationEngine']]],
+  ['render_5fconfidence',['RENDER_CONFIDENCE',['../classITMLib_1_1ITMSurfelVisualisationEngine.html#a1e9d5d8f6dce32d19d83379cc6b27d3aa9bb634b34adb8e64dc990922907c09e9',1,'ITMLib::ITMSurfelVisualisationEngine']]],
+  ['render_5fflat',['RENDER_FLAT',['../classITMLib_1_1ITMSurfelVisualisationEngine.html#a1e9d5d8f6dce32d19d83379cc6b27d3aa0eea7ec0a4b357a80f89089cdb5ac3bb',1,'ITMLib::ITMSurfelVisualisationEngine']]],
+  ['render_5ffrom_5fnew_5fraycast',['RENDER_FROM_NEW_RAYCAST',['../classITMLib_1_1IITMVisualisationEngine.html#ae219bd1f3f51187f9c23b69487dc9505ad7aa00fffc9bbc8f45707da150991683',1,'ITMLib::IITMVisualisationEngine']]],
+  ['render_5ffrom_5fold_5fforwardproj',['RENDER_FROM_OLD_FORWARDPROJ',['../classITMLib_1_1IITMVisualisationEngine.html#ae219bd1f3f51187f9c23b69487dc9505ab1bb1817b7759ebf6cf35cd43e53158c',1,'ITMLib::IITMVisualisationEngine']]],
+  ['render_5ffrom_5fold_5fraycast',['RENDER_FROM_OLD_RAYCAST',['../classITMLib_1_1IITMVisualisationEngine.html#ae219bd1f3f51187f9c23b69487dc9505ac3236ebc21af68cec20258fe54d60207',1,'ITMLib::IITMVisualisationEngine']]],
+  ['render_5flambertian',['RENDER_LAMBERTIAN',['../classITMLib_1_1ITMSurfelVisualisationEngine.html#a1e9d5d8f6dce32d19d83379cc6b27d3aa13c34c279a7c754f4ffd5e0fcdc8931f',1,'ITMLib::ITMSurfelVisualisationEngine']]],
+  ['render_5fnormal',['RENDER_NORMAL',['../classITMLib_1_1ITMSurfelVisualisationEngine.html#a1e9d5d8f6dce32d19d83379cc6b27d3aa8f5b98c2454bdd401020482795324640',1,'ITMLib::ITMSurfelVisualisationEngine']]],
+  ['render_5fphong',['RENDER_PHONG',['../classITMLib_1_1ITMSurfelVisualisationEngine.html#a1e9d5d8f6dce32d19d83379cc6b27d3aa6e0dc546a26bc06dc643cc7153499ae1',1,'ITMLib::ITMSurfelVisualisationEngine']]],
+  ['render_5fshaded_5fgreyscale',['RENDER_SHADED_GREYSCALE',['../classITMLib_1_1IITMVisualisationEngine.html#aba39e88d75023a0656c849ebd85d33a4a5b0b5b69c2123669348f2e152265b692',1,'ITMLib::IITMVisualisationEngine']]],
+  ['render_5fshaded_5fgreyscale_5fimagenormals',['RENDER_SHADED_GREYSCALE_IMAGENORMALS',['../classITMLib_1_1IITMVisualisationEngine.html#aba39e88d75023a0656c849ebd85d33a4aeed7db21cc7d92682d86d4f3a4e7b9d7',1,'ITMLib::IITMVisualisationEngine']]],
+  ['rgb_5f8u',['RGB_8u',['../FileUtils_8cpp.html#a8dcd21376da83902acea50d9deeb5990ac9499edd2507f0919e96191ff9883f05',1,'FileUtils.cpp']]],
+  ['rgba_5f8u',['RGBA_8u',['../FileUtils_8cpp.html#a8dcd21376da83902acea50d9deeb5990aa6250ed52173c8ef2f43ae203e929f45',1,'FileUtils.cpp']]]
+];
