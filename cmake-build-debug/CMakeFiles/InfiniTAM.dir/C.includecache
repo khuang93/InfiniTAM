@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/d/LocalDocuments/MT_Local_Repos/InfiniTAM/InfiniTAM/Apps/iOS/Viewer/AppDelegate.h
+UIKit/UIKit.h
+-
+
+/mnt/d/LocalDocuments/MT_Local_Repos/InfiniTAM/InfiniTAM/Apps/iOS/Viewer/AppDelegate.m
+AppDelegate.h
+/mnt/d/LocalDocuments/MT_Local_Repos/InfiniTAM/InfiniTAM/Apps/iOS/Viewer/AppDelegate.h
+
+/mnt/d/LocalDocuments/MT_Local_Repos/InfiniTAM/InfiniTAM/Apps/iOS/Viewer/main.m
+UIKit/UIKit.h
+-
+AppDelegate.h
+/mnt/d/LocalDocuments/MT_Local_Repos/InfiniTAM/InfiniTAM/Apps/iOS/Viewer/AppDelegate.h
+

@@ -2,7 +2,7 @@
 # UseFFmpeg.cmake #
 ###################
 
-OPTION(WITH_FFMPEG "Build with FFmpeg support?" OFF)
+OPTION(WITH_FFMPEG "Build with FFmpeg support?" ON)
 
 IF(WITH_FFMPEG)
   FIND_PACKAGE(FFmpeg QUIET)
