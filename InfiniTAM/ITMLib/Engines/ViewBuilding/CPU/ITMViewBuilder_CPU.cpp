@@ -67,6 +67,66 @@ void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage
 	}
 }
 
+//new
+void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage, ITMFloatImage *rawDepthImage, bool useBilateralFilter, bool modelSensorNoise, bool storePreviousImage)
+{
+	if (*view_ptr == NULL)
+	{
+		*view_ptr = new ITMView(calib, rgbImage->noDims, rawDepthImage->noDims, false);
+		if (this->shortImage != NULL) delete this->shortImage;
+		this->shortImage = new ITMShortImage(rawDepthImage->noDims, true, false);
+		if (this->floatImage != NULL) delete this->floatImage;
+		this->floatImage = new ITMFloatImage(rawDepthImage->noDims, true, false);
+
+		if (modelSensorNoise)
+		{
+			(*view_ptr)->depthNormal = new ITMFloat4Image(rawDepthImage->noDims, true, false);
+			(*view_ptr)->depthUncertainty = new ITMFloatImage(rawDepthImage->noDims, true, false);
+		}
+	}
+	ITMView *view = *view_ptr;
+
+	if (storePreviousImage)
+	{
+		if (!view->rgb_prev) view->rgb_prev = new ITMUChar4Image(rgbImage->noDims, true, false);
+		else view->rgb_prev->SetFrom(view->rgb, MemoryBlock<Vector4u>::CPU_TO_CPU);
+	}
+
+	view->rgb->SetFrom(rgbImage, MemoryBlock<Vector4u>::CPU_TO_CPU);
+//	this->shortImage->SetFrom(rawDepthImage, MemoryBlock<short>::CPU_TO_CPU);
+
+	this->floatImage->SetFrom(rawDepthImage, MemoryBlock<float>::CPU_TO_CPU);
+	view->depth->SetFrom(rawDepthImage,MemoryBlock<float>::CPU_TO_CPU);
+
+//	switch (view->calib.disparityCalib.GetType())
+//	{
+//		case ITMDisparityCalib::TRAFO_KINECT:
+//			this->ConvertDisparityToDepth(view->depth, this->shortImage, &(view->calib.intrinsics_d), view->calib.disparityCalib.GetParams());
+//		break;
+//		case ITMDisparityCalib::TRAFO_AFFINE:
+//			this->ConvertDepthAffineToFloat(view->depth, this->shortImage, view->calib.disparityCalib.GetParams());
+//		break;
+//		default:
+//			break;
+//	}
+
+	if (useBilateralFilter)
+	{
+		//5 steps of bilateral filtering
+		this->DepthFiltering(this->floatImage, view->depth);
+		this->DepthFiltering(view->depth, this->floatImage);
+		this->DepthFiltering(this->floatImage, view->depth);
+		this->DepthFiltering(view->depth, this->floatImage);
+		this->DepthFiltering(this->floatImage, view->depth);
+		view->depth->SetFrom(this->floatImage, MemoryBlock<float>::CPU_TO_CPU);
+	}
+
+	if (modelSensorNoise)
+	{
+		this->ComputeNormalAndWeights(view->depthNormal, view->depthUncertainty, view->depth, view->calib.intrinsics_d.projectionParamsSimple.all);
+	}
+}
+
 void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage, ITMShortImage *depthImage, bool useBilateralFilter, ITMIMUMeasurement *imuMeasurement, bool modelSensorNoise, bool storePreviousImage)
 {
 	if (*view_ptr == NULL)
