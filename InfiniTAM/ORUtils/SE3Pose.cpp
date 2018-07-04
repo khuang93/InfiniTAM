@@ -313,6 +313,7 @@ void SE3Pose::SetRT(const Matrix3<float> & R, const Vector3<float> & t)
 	M.m[0 + 4 * 2] = R.m[0 + 3 * 2]; M.m[1 + 4 * 2] = R.m[1 + 3 * 2]; M.m[2 + 4 * 2] = R.m[2 + 3 * 2];
 
 	M.m[0 + 4 * 3] = t.v[0]; M.m[1 + 4 * 3] = t.v[1]; M.m[2 + 4 * 3] = t.v[2];
+	M.m[3 + 4 * 3] = 1.0f;
 
 	SetParamsFromModelView();
 }
