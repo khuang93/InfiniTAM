@@ -343,7 +343,7 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 
 //new
 template <typename TVoxel, typename TIndex>
-ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITMUChar4Image *rgbImage, ITMFloatImage *depthImage, ITMIMUMeasurement *imuMeasurement)
+ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITMUChar4Image *rgbImage, ITMFloatImage *depthImage, ITMIMUMeasurement *imuMeasurement, ORUtils::SE3Pose _pose)
 {
 	// prepare image and turn it into a depth image
 //	if (imuMeasurement == NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter);
@@ -368,6 +368,8 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 		default:
 			break;
 	}
+
+	trackingState->pose_d->SetFrom(&_pose);
 
 	//relocalisation
 	int addKeyframeIdx = -1;

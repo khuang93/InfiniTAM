@@ -7,7 +7,8 @@
 
 #include "ITMVoxelBlockHash.h"
 #include "../../../ORUtils/CUDADefines.h"
-
+//TODO this is manually added, need to fifure out the how to set it to no cuda
+//#define COMPILE_WITHOUT_CUDA
 namespace ITMLib
 {
 	struct ITMHashSwapState
@@ -51,7 +52,7 @@ namespace ITMLib
 		int noTotalEntries; 
 
 		ITMGlobalCache() : noTotalEntries(SDF_BUCKET_NUM + SDF_EXCESS_LIST_SIZE)
-		{	
+		{
 			hasStoredData = (bool*)malloc(noTotalEntries * sizeof(bool));
 			storedVoxelBlocks = (TVoxel*)malloc(noTotalEntries * sizeof(TVoxel) * SDF_BLOCK_SIZE3);
 			memset(hasStoredData, 0, noTotalEntries);
@@ -72,6 +73,8 @@ namespace ITMLib
 
 			ORcudaSafeCall(cudaMalloc((void**)&neededEntryIDs_device, SDF_TRANSFER_BLOCK_NUM * sizeof(int)));
 #else
+			//TODO DEBUG
+			std::cout<<SDF_TRANSFER_BLOCK_NUM<<" "<<sizeof(TVoxel)<<" "<<SDF_BLOCK_SIZE3<<std::endl;
 			syncedVoxelBlocks_host = (TVoxel *)malloc(SDF_TRANSFER_BLOCK_NUM * sizeof(TVoxel) * SDF_BLOCK_SIZE3);
 			hasSyncedData_host = (bool*)malloc(SDF_TRANSFER_BLOCK_NUM * sizeof(bool));
 			neededEntryIDs_host = (int*)malloc(SDF_TRANSFER_BLOCK_NUM * sizeof(int));

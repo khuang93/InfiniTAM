@@ -40,12 +40,14 @@ namespace ITMLib
 			index.LoadFromDirectory(outputDirectory);			
 		}
 
-		ITMScene(const ITMSceneParams *_sceneParams, bool _useSwapping, MemoryDeviceType _memoryType)
+	  ITMScene(const ITMSceneParams *_sceneParams, bool _useSwapping, MemoryDeviceType _memoryType)
 			: sceneParams(_sceneParams), index(_memoryType), localVBA(_memoryType, index.getNumAllocatedVoxelBlocks(), index.getVoxelBlockSize())
 		{
 			if (_useSwapping) globalCache = new ITMGlobalCache<TVoxel>();
 			else globalCache = NULL;
 		}
+
+//	  ITMScene():index(MEMORYDEVICE_CPU), localVBA(MEMORYDEVICE_CPU, index.getNumAllocatedVoxelBlocks(), index.getVoxelBlockSize()){}
 
 		~ITMScene(void)
 		{
@@ -53,7 +55,7 @@ namespace ITMLib
 		}
 
 		// Suppress the default copy constructor and assignment operator
-		ITMScene(const ITMScene&);
-		ITMScene& operator=(const ITMScene&);
+//		ITMScene(const ITMScene&);
+//		ITMScene& operator=(const ITMScene&);
 	};
 }
