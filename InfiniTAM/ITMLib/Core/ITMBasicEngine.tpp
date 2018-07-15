@@ -343,7 +343,7 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 
 //new
 template <typename TVoxel, typename TIndex>
-ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITMUChar4Image *rgbImage, ITMFloatImage *depthImage, ITMIMUMeasurement *imuMeasurement, ORUtils::SE3Pose _pose)
+ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITMUChar4Image *rgbImage, ITMFloatImage *depthImage,  ORUtils::SE3Pose * _pose,ITMIMUMeasurement *imuMeasurement)
 {
 	// prepare image and turn it into a depth image
 //	if (imuMeasurement == NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter);
@@ -352,9 +352,9 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 	if (!mainProcessingActive) return ITMTrackingState::TRACKING_FAILED;
 
 	// tracking
+
 	ORUtils::SE3Pose oldPose(*(trackingState->pose_d));
 	if (trackingActive) trackingController->Track(trackingState, view);
-
 	ITMTrackingState::TrackingResult trackerResult = ITMTrackingState::TRACKING_GOOD;
 	switch (settings->behaviourOnFailure) {
 		case ITMLibSettings::FAILUREMODE_RELOCALISE:
@@ -368,12 +368,13 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 		default:
 			break;
 	}
-
-	trackingState->pose_d->SetFrom(&_pose);
-
+    std::cout<<trackingState->pose_d->GetM();
+	trackingState->pose_d->SetFrom(_pose);
+//   ITMTrackingState::TrackingResult trackerResult=ITMTrackingState::TRACKING_GOOD;
 	//relocalisation
+
 	int addKeyframeIdx = -1;
-	if (settings->behaviourOnFailure == ITMLibSettings::FAILUREMODE_RELOCALISE)
+/*	if (settings->behaviourOnFailure == ITMLibSettings::FAILUREMODE_RELOCALISE)
 	{
 		if (trackerResult == ITMTrackingState::TRACKING_GOOD && relocalisationCount > 0) relocalisationCount--;
 
@@ -401,6 +402,10 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 			trackerResult = trackingState->trackerResult;
 		}
 	}
+*/
+
+
+
 
 	bool didFusion = false;
 	if ((trackerResult == ITMTrackingState::TRACKING_GOOD || !trackingInitialised) && (fusionActive) && (relocalisationCount == 0)) {
@@ -412,11 +417,12 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 		framesProcessed++;
 	}
 
+//need this part!!!
 	if (trackerResult == ITMTrackingState::TRACKING_GOOD || trackerResult == ITMTrackingState::TRACKING_POOR)
 	{
 		if (!didFusion) denseMapper->UpdateVisibleList(view, trackingState, scene, renderState_live);
 
-		// raycast to renderState_live for tracking and free visualisation
+		// raycast to renderState_live for tracking and free visualisation //TODO Key for rendering
 		trackingController->Prepare(trackingState, scene, view, visualisationEngine, renderState_live);
 
 		if (addKeyframeIdx >= 0)

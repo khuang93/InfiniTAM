@@ -4,6 +4,7 @@
 #include "../../../ORUtils/Cholesky.h"
 
 #include <math.h>
+#include <iostream>
 
 using namespace ITMLib;
 

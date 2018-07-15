@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <limits>
+#include <iostream>
 
 using namespace ITMLib;
 
@@ -410,6 +411,7 @@ void ITMExtendedTracker::UpdatePoseQuality(int noValidPoints_old, float *hessian
 
 void ITMExtendedTracker::TrackCamera(ITMTrackingState *trackingState, const ITMView *view)
 {
+  std::cout<<"tracker"<<trackingState->HasValidPointCloud()<<std::endl;
 	if (!trackingState->HasValidPointCloud()) return;
 
 	if (trackingState->age_pointCloud >= 0) trackingState->framesProcessed++;
