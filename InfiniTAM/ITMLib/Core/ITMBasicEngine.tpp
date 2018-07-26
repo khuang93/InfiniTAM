@@ -354,7 +354,8 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 	// tracking
 
 	ORUtils::SE3Pose oldPose(*(trackingState->pose_d));
-	if (trackingActive) trackingController->Track(trackingState, view);
+  //no need for recon
+/*	if (trackingActive) trackingController->Track(trackingState, view);
 	ITMTrackingState::TrackingResult trackerResult = ITMTrackingState::TRACKING_GOOD;
 	switch (settings->behaviourOnFailure) {
 		case ITMLibSettings::FAILUREMODE_RELOCALISE:
@@ -367,13 +368,14 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 		break;
 		default:
 			break;
-	}
-    std::cout<<trackingState->pose_d->GetM();
+	}*/
+//    std::cout<<_pose->GetM();
 	trackingState->pose_d->SetFrom(_pose);
-//   ITMTrackingState::TrackingResult trackerResult=ITMTrackingState::TRACKING_GOOD;
+   ITMTrackingState::TrackingResult trackerResult=ITMTrackingState::TRACKING_GOOD;
 	//relocalisation
 
 	int addKeyframeIdx = -1;
+  //no need for recon
 /*	if (settings->behaviourOnFailure == ITMLibSettings::FAILUREMODE_RELOCALISE)
 	{
 		if (trackerResult == ITMTrackingState::TRACKING_GOOD && relocalisationCount > 0) relocalisationCount--;
@@ -420,18 +422,19 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 //need this part!!!
 	if (trackerResult == ITMTrackingState::TRACKING_GOOD || trackerResult == ITMTrackingState::TRACKING_POOR)
 	{
-		if (!didFusion) denseMapper->UpdateVisibleList(view, trackingState, scene, renderState_live);
+//no need for recon
+//		if (!didFusion) denseMapper->UpdateVisibleList(view, trackingState, scene, renderState_live);
 
-		// raycast to renderState_live for tracking and free visualisation //TODO Key for rendering
+		// raycast to renderState_live for tracking and free visualisation //TODO Key for recon & rendering, gives r_state point cloud
 		trackingController->Prepare(trackingState, scene, view, visualisationEngine, renderState_live);
-
-		if (addKeyframeIdx >= 0)
+//No need for recon
+		/*if (addKeyframeIdx >= 0)
 		{
 			ORUtils::MemoryBlock<Vector4u>::MemoryCopyDirection memoryCopyDirection =
 					settings->deviceType == ITMLibSettings::DEVICE_CUDA ? ORUtils::MemoryBlock<Vector4u>::CUDA_TO_CUDA : ORUtils::MemoryBlock<Vector4u>::CPU_TO_CPU;
 
 			kfRaycast->SetFrom(renderState_live->raycastImage, memoryCopyDirection);
-		}
+		}*/
 	}
 	else *trackingState->pose_d = oldPose;
 
