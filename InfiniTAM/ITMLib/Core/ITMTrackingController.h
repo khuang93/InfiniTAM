@@ -22,7 +22,7 @@ namespace ITMLib
 	public:
 		void Track(ITMTrackingState *trackingState, const ITMView *view)
 		{
-
+          std::cout<<"dbg TController\n";
 			tracker->TrackCamera(trackingState, view);
 		}
 
