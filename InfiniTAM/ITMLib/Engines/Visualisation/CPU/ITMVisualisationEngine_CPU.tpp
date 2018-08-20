@@ -347,6 +347,7 @@ static void CreatePointCloud_common(const ITMScene<TVoxel,TIndex> *scene, const 
 template<class TVoxel, class TIndex>
 static void CreateICPMaps_common(const ITMScene<TVoxel,TIndex> *scene, const ITMView *view, ITMTrackingState *trackingState, ITMRenderState *renderState)
 {
+	/*std::cout<<"CreateICPMaps_common\n";*/
 	Vector2i imgSize = renderState->raycastResult->noDims;
 	Matrix4f invM = trackingState->pose_d->GetInvM();
 

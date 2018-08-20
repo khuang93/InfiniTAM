@@ -5,6 +5,7 @@
 #include "../../../ORUtils/SE3Pose.h"
 #include "../Misc/ITMPointCloud.h"
 
+#include <iostream>
 namespace ITMLib
 {
 	/** \brief
