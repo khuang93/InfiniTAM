@@ -99,7 +99,7 @@ namespace ITMLib
 		}
 
 		ITMTrackingController(ITMTracker *tracker, const ITMLibSettings *settings)
-		{   std::cout<<"dbg TController Constructor\n";
+		{   /*std::cout<<"dbg TController Constructor\n";*/
 			this->tracker = tracker;
 			this->settings = settings;
 		}
