@@ -4,6 +4,8 @@
 
 #include "ITMVoxelBlockHash.h"
 
+//extern const unsigned int SDF_LOCAL_BLOCK_NUM = 0x40000;
+
 template<typename T> _CPU_AND_GPU_CODE_ inline int hashIndex(const THREADPTR(T) & blockPos) {
 	return (((uint)blockPos.x * 73856093u) ^ ((uint)blockPos.y * 19349669u) ^ ((uint)blockPos.z * 83492791u)) & (uint)SDF_HASH_MASK;
 }
