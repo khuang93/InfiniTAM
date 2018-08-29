@@ -44,6 +44,7 @@ ITMLibSettings::ITMLibSettings(void)
 	/// switch between various library modes - basic, with loop closure, etc.
 	libMode = LIBMODE_BASIC;
 	//libMode = LIBMODE_BASIC_SURFELS;
+	//libMode = LIBMODE_LOOPCLOSURE;
 
 	//// Default ICP tracking
 	//trackerConfig = "type=icp,levels=rrrbb,minstep=1e-3,"

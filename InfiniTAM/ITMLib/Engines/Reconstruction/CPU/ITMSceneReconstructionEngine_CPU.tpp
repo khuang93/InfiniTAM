@@ -153,7 +153,6 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 
 	int lastFreeVoxelBlockId = scene->localVBA.lastFreeBlockId;
 	int lastFreeExcessListId = scene->index.GetLastFreeExcessListId();
-
 	int noVisibleEntries = 0;
 
 	memset(entriesAllocType, 0, noTotalEntries);
@@ -168,7 +167,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 	for (int locId = 0; locId < depthImgSize.x*depthImgSize.y; locId++)
 	{
 		int y = locId / depthImgSize.x;
-		int x = locId % /*- y **/ depthImgSize.x;
+		int x = locId % depthImgSize.x;  //		int x = locId - y * depthImgSize.x;
 		buildHashAllocAndVisibleTypePP(entriesAllocType, entriesVisibleType, x, y, blockCoords, depth, invM_d,
 			invProjParams_d, mu, depthImgSize, oneOverVoxelSize, hashTable, scene->sceneParams->viewFrustum_min,
 			scene->sceneParams->viewFrustum_max);
