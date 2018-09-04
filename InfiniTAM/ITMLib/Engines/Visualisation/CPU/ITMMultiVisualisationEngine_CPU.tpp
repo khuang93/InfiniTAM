@@ -44,7 +44,7 @@ void ITMMultiVisualisationEngine_CPU<TVoxel, TIndex>::CreateExpectedDepths(const
 	{
 		float voxelSize = renderState->sceneParams.voxelSize;
 		const ITMHashEntry *hash_entries = renderState->indexData_host.index[localMapId];
-		int noHashEntries = ITMVoxelBlockHash::noTotalEntries;
+		int noHashEntries = (sceneIsBackground? ITMVoxelBlockHash::noTotalEntries_BG:ITMVoxelBlockHash::noTotalEntries);
 
 		std::vector<RenderingBlock> renderingBlocks(MAX_RENDERING_BLOCKS);
 		int numRenderingBlocks = 0;

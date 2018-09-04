@@ -148,7 +148,7 @@ void ITMSwappingEngine_CPU<TVoxel, ITMVoxelBlockHash>::SaveToGlobalMemory(ITMSce
 			swapStates[entryDestId].state = 0;
 
 			int vbaIdx = noAllocatedVoxelEntries;
-			if (vbaIdx < SDF_BUCKET_NUM - 1)
+			if (vbaIdx < (sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) - 1)
 			{
 				noAllocatedVoxelEntries++;
 				voxelAllocationList[vbaIdx + 1] = localPtr;
@@ -184,7 +184,7 @@ void ITMSwappingEngine_CPU<TVoxel, ITMVoxelBlockHash>::CleanLocalMemory(ITMScene
 	TVoxel *localVBA = scene->localVBA.GetVoxelBlocks();
 	int *voxelAllocationList = scene->localVBA.GetAllocationList();
 
-	int noTotalEntries = scene->index.noTotalEntries;
+	int noTotalEntries = (sceneIsBackground? scene->index.noTotalEntries_BG:scene->index.noTotalEntries);
 
 	int noNeededEntries = 0;
 	int noAllocatedVoxelEntries = scene->localVBA.lastFreeBlockId;
@@ -200,7 +200,7 @@ void ITMSwappingEngine_CPU<TVoxel, ITMVoxelBlockHash>::CleanLocalMemory(ITMScene
 			TVoxel *localVBALocation = localVBA + localPtr * SDF_BLOCK_SIZE3;
 
 			int vbaIdx = noAllocatedVoxelEntries;
-			if (vbaIdx < SDF_BUCKET_NUM - 1)
+			if (vbaIdx < (sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) - 1)
 			{
 				noAllocatedVoxelEntries++;
 				voxelAllocationList[vbaIdx + 1] = localPtr;

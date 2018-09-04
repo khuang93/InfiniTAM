@@ -62,7 +62,7 @@ include_directories(InfiniTAM/ITMLib/Utils)
 include_directories(InfiniTAM/MiniSlamGraphLib)
 include_directories(InfiniTAM/ORUtils)
 
-add_executable(InfiniTAM
+#[[add_executable(InfiniTAM
         InfiniTAM/Apps/android/jni/InfiniTAMApp.cpp
         InfiniTAM/Apps/android/jni/InfiniTAMApp.h
         InfiniTAM/Apps/android/jni/jniExport.cpp
@@ -320,4 +320,4 @@ add_executable(InfiniTAM
         InfiniTAM/build-win.sh
         InfiniTAM/CMakeLists.txt
         InfiniTAM/Doxyfile
-        InfiniTAM/require-msbuild.sh)
+        InfiniTAM/require-msbuild.sh)]]

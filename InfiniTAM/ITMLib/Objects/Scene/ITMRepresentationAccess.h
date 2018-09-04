@@ -7,7 +7,7 @@
 //extern const unsigned int SDF_LOCAL_BLOCK_NUM = 0x40000;
 
 template<typename T> _CPU_AND_GPU_CODE_ inline int hashIndex(const THREADPTR(T) & blockPos) {
-	return (((uint)blockPos.x * 73856093u) ^ ((uint)blockPos.y * 19349669u) ^ ((uint)blockPos.z * 83492791u)) & (uint)SDF_HASH_MASK;
+	return (((uint)blockPos.x * 73856093u) ^ ((uint)blockPos.y * 19349669u) ^ ((uint)blockPos.z * 83492791u)) & (uint)(sceneIsBackground? SDF_HASH_MASK_BG: SDF_HASH_MASK);
 }
 
 _CPU_AND_GPU_CODE_ inline int pointToVoxelBlockPos(const THREADPTR(Vector3i) & point, THREADPTR(Vector3i) &blockPos) {
@@ -46,7 +46,7 @@ _CPU_AND_GPU_CODE_ inline int findVoxel(const CONSTPTR(ITMLib::ITMVoxelBlockHash
 		}
 
 		if (hashEntry.offset < 1) break;
-		hashIdx = SDF_BUCKET_NUM + hashEntry.offset - 1;
+		hashIdx = (sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + hashEntry.offset - 1;
 	}
 
 	vmIndex = false;
@@ -96,7 +96,7 @@ _CPU_AND_GPU_CODE_ inline TVoxel readVoxel(const CONSTPTR(TVoxel) *voxelData, co
 		}
 
 		if (hashEntry.offset < 1) break;
-		hashIdx = SDF_BUCKET_NUM + hashEntry.offset - 1;
+		hashIdx = (sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + hashEntry.offset - 1;
 	}
 
 	vmIndex = false;

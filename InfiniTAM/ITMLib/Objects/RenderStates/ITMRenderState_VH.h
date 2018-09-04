@@ -39,7 +39,7 @@ namespace ITMLib
 		{
 			this->memoryType = memoryType;
 
-			visibleEntryIDs = new ORUtils::MemoryBlock<int>(SDF_LOCAL_BLOCK_NUM, memoryType);
+			visibleEntryIDs = new ORUtils::MemoryBlock<int>((sceneIsBackground? SDF_LOCAL_BLOCK_NUM_BG:SDF_LOCAL_BLOCK_NUM), memoryType);
 			entriesVisibleType = new ORUtils::MemoryBlock<uchar>(noTotalEntries, memoryType);
 
 			noVisibleEntries = 0;

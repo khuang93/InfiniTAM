@@ -23,7 +23,7 @@ namespace ITMLib
     /** Creates a render state, containing rendering info for the scene. */
     static ITMRenderState *CreateRenderState(const Vector2i& imgSize, const ITMSceneParams *sceneParams, MemoryDeviceType memoryType)
     {
-      return new ITMRenderState_VH(ITMVoxelBlockHash::noTotalEntries, imgSize, sceneParams->viewFrustum_min, sceneParams->viewFrustum_max, memoryType);
+      return new ITMRenderState_VH((sceneIsBackground? ITMVoxelBlockHash::noTotalEntries_BG:ITMVoxelBlockHash::noTotalEntries), imgSize, sceneParams->viewFrustum_min, sceneParams->viewFrustum_max, memoryType);
     }
   };
 }

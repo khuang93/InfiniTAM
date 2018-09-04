@@ -36,7 +36,7 @@ inline void ITMMultiMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMM
 	ITMMesh::Triangle *triangles = mesh->triangles->GetData(MEMORYDEVICE_CPU);
 	mesh->triangles->Clear();
 
-	int noTriangles = 0, noMaxTriangles = mesh->noMaxTriangles, noTotalEntriesPerLocalMap = ITMVoxelBlockHash::noTotalEntries;
+	int noTriangles = 0, noMaxTriangles = mesh->noMaxTriangles, noTotalEntriesPerLocalMap = (sceneIsBackground? ITMVoxelBlockHash::noTotalEntries_BG:ITMVoxelBlockHash::noTotalEntries);
 	float factor = sceneParams.voxelSize;
 
 	// very dumb rendering -- likely to generate lots of duplicates

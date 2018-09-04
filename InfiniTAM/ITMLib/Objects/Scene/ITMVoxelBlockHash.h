@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
+#include <src/ObjSLAM/ObjSLAMVoxelSceneParams.h>
 #endif
 
 #include "../../Utils/ITMMath.h"
@@ -15,15 +16,15 @@
 #define SDF_BLOCK_SIZE 8				// SDF block size
 #define SDF_BLOCK_SIZE3 512				// SDF_BLOCK_SIZE3 = SDF_BLOCK_SIZE * SDF_BLOCK_SIZE * SDF_BLOCK_SIZE
 
-#define SDF_LOCAL_BLOCK_NUM 0x10000		// 0x40000 0x20000 0x10000 Number of locally stored blocks, currently 2^17
+#define SDF_LOCAL_BLOCK_NUM 0x8000		// 0x40000 0x20000 0x10000 Number of locally stored blocks, currently 2^17
 #define SDF_BUCKET_NUM SDF_LOCAL_BLOCK_NUM*4		// 0x100000 0x80000 0x40000 Number of Hash Bucket, should be 2^n and bigger than SDF_LOCAL_BLOCK_NUM, SDF_HASH_MASK = SDF_BUCKET_NUM - 1
 #define SDF_HASH_MASK SDF_BUCKET_NUM-1		// 0xfffff 0x7ffff 0x3ffff Used for get hashing value of the bucket index,  SDF_HASH_MASK = SDF_BUCKET_NUM - 1
-#define SDF_EXCESS_LIST_SIZE 0x8000	// 0x20000 0x10000 0x8000 Size of excess list, used to handle collisions. Also max offset (unsigned short) value.
+#define SDF_EXCESS_LIST_SIZE SDF_LOCAL_BLOCK_NUM/2	// 0x20000 0x10000 0x8000 Size of excess list, used to handle collisions. Also max offset (unsigned short) value.
 
-#define SDF_LOCAL_BLOCK_NUM_BG 0x40000
-#define SDF_BUCKET_NUM_BG 0x100000
-#define SDF_HASH_MASK_BG 0xfffff
-#define SDF_EXCESS_LIST_SIZE_BG 0x20000
+#define SDF_LOCAL_BLOCK_NUM_BG 0x10000
+#define SDF_BUCKET_NUM_BG SDF_LOCAL_BLOCK_NUM_BG*4
+#define SDF_HASH_MASK_BG SDF_BUCKET_NUM_BG-1
+#define SDF_EXCESS_LIST_SIZE_BG SDF_LOCAL_BLOCK_NUM_BG/2
 
 
 // for loop closure
@@ -34,6 +35,8 @@
 //#define SDF_EXCESS_LIST_SIZE 0x8000		// 0x8000 Size of excess list, used to handle collisions. Also max offset (unsigned short) value.
 
 #define SDF_TRANSFER_BLOCK_NUM 0x1000	// Maximum number of blocks transfered in one swap operation
+
+extern bool sceneIsBackground;
 
 /** \brief
 	A single entry in the hash table.
@@ -71,10 +74,11 @@ namespace ITMLib
 		};
 
 		/** Maximum number of total entries. */
-		static const CONSTPTR(int) noTotalEntries = SDF_BUCKET_NUM + SDF_EXCESS_LIST_SIZE;
+//		static /*const*/ CONSTPTR(int) noTotalEntries = (sceneIsBackground? SDF_BUCKET_NUM_BG + SDF_EXCESS_LIST_SIZE_BG : SDF_BUCKET_NUM+SDF_EXCESS_LIST_SIZE);
+        static const CONSTPTR(int) noTotalEntries = SDF_BUCKET_NUM + SDF_EXCESS_LIST_SIZE;
 		static const CONSTPTR(int) voxelBlockSize = SDF_BLOCK_SIZE * SDF_BLOCK_SIZE * SDF_BLOCK_SIZE;
         /** For Background Scene changed params: Maximum number of total entries. */
-        static const CONSTPTR(int) noTotalEntries_BG = SDF_BUCKET_NUM + SDF_EXCESS_LIST_SIZE;
+        static const CONSTPTR(int) noTotalEntries_BG = SDF_BUCKET_NUM_BG + SDF_EXCESS_LIST_SIZE_BG;
         static const CONSTPTR(int) voxelBlockSize_BG = SDF_BLOCK_SIZE * SDF_BLOCK_SIZE * SDF_BLOCK_SIZE;
 
 #ifndef __METALC__
@@ -97,8 +101,9 @@ namespace ITMLib
 		ITMVoxelBlockHash(MemoryDeviceType memoryType)
 		{
 			this->memoryType = memoryType;
-			hashEntries = new ORUtils::MemoryBlock<ITMHashEntry>(noTotalEntries, memoryType);
-			excessAllocationList = new ORUtils::MemoryBlock<int>(SDF_EXCESS_LIST_SIZE, memoryType);
+			hashEntries = new ORUtils::MemoryBlock<ITMHashEntry>((sceneIsBackground? ITMVoxelBlockHash::noTotalEntries_BG:ITMVoxelBlockHash::noTotalEntries), memoryType);
+			excessAllocationList = new ORUtils::MemoryBlock<int>((sceneIsBackground? SDF_EXCESS_LIST_SIZE_BG:SDF_EXCESS_LIST_SIZE), memoryType);
+//          std::cout<<"sceneIsBackground"<<sceneIsBackground<<std::endl;
 		}
 
 		~ITMVoxelBlockHash(void)
@@ -131,7 +136,7 @@ namespace ITMLib
 #endif
 
 		/** Maximum number of total entries. */
-		int getNumAllocatedVoxelBlocks(void) { return SDF_LOCAL_BLOCK_NUM; }
+		int getNumAllocatedVoxelBlocks(void) { return (sceneIsBackground? SDF_LOCAL_BLOCK_NUM_BG:SDF_LOCAL_BLOCK_NUM); }
 		int getVoxelBlockSize(void) { return SDF_BLOCK_SIZE3; }
 
 		void SaveToDirectory(const std::string &outputDirectory) const

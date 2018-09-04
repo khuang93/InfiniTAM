@@ -26,7 +26,7 @@ template<class TVoxel>
 ITMRenderState_VH* ITMVisualisationEngine_CPU<TVoxel, ITMVoxelBlockHash>::CreateRenderState(const ITMScene<TVoxel, ITMVoxelBlockHash> *scene, const Vector2i & imgSize) const
 {
 	return new ITMRenderState_VH(
-		ITMVoxelBlockHash::noTotalEntries, imgSize, scene->sceneParams->viewFrustum_min, scene->sceneParams->viewFrustum_max, MEMORYDEVICE_CPU
+			(sceneIsBackground? ITMVoxelBlockHash::noTotalEntries_BG:ITMVoxelBlockHash::noTotalEntries), imgSize, scene->sceneParams->viewFrustum_min, scene->sceneParams->viewFrustum_max, MEMORYDEVICE_CPU
 	);
 }
 
@@ -40,7 +40,7 @@ void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::FindVisibleBlocks(con
 	ITMRenderState *renderState) const
 {
 	const ITMHashEntry *hashTable = scene->index.GetEntries();
-	int noTotalEntries = scene->index.noTotalEntries;
+	int noTotalEntries = (sceneIsBackground? scene->index.noTotalEntries_BG:scene->index.noTotalEntries);
 	float voxelSize = scene->sceneParams->voxelSize;
 	Vector2i imgSize = renderState->renderingRangeImage->noDims;
 
@@ -138,7 +138,9 @@ void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::CreateExpectedDepths(
 	//go through list of visible 8x8x8 blocks
 	for (int blockNo = 0; blockNo < noVisibleEntries; ++blockNo) {
 		const ITMHashEntry & blockData(scene->index.GetEntries()[visibleEntryIDs[blockNo]]);
-
+		std::cout<<"sceneIsBackground"<<sceneIsBackground<<std::endl;
+		std::cout<<"blockNo"<<blockNo<<std::endl;
+		std::cout<<"visibleEntryID"<<visibleEntryIDs[blockNo]<<std::endl;
 		Vector2i upperLeft, lowerRight;
 		Vector2f zRange;
 		bool validProjection = false;

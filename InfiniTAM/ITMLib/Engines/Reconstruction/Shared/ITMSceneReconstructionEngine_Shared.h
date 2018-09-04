@@ -239,7 +239,7 @@ _CPU_AND_GPU_CODE_ inline void buildHashAllocAndVisibleTypePP(DEVICEPTR(uchar) *
 			{
 				while (hashEntry.offset >= 1)
 				{
-					hashIdx = SDF_BUCKET_NUM + hashEntry.offset - 1;
+					hashIdx = (sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + hashEntry.offset - 1;
 					hashEntry = hashTable[hashIdx];
 
 					if (IS_EQUAL3(hashEntry.pos, blockPos) && hashEntry.ptr >= -1)

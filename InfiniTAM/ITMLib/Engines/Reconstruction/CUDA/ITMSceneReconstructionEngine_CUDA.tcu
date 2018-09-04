@@ -54,7 +54,7 @@ ITMSceneReconstructionEngine_CUDA<TVoxel,ITMVoxelBlockHash>::ITMSceneReconstruct
 	ORcudaSafeCall(cudaMalloc((void**)&allocationTempData_device, sizeof(AllocationTempData)));
 	ORcudaSafeCall(cudaMallocHost((void**)&allocationTempData_host, sizeof(AllocationTempData)));
 
-	int noTotalEntries = ITMVoxelBlockHash::noTotalEntries;
+	int noTotalEntries = (sceneIsBackground? ITMVoxelBlockHash::noTotalEntries_BG:ITMVoxelBlockHash::noTotalEntries);
 	ORcudaSafeCall(cudaMalloc((void**)&entriesAllocType_device, noTotalEntries));
 	ORcudaSafeCall(cudaMalloc((void**)&blockCoords_device, noTotalEntries * sizeof(Vector4s)));
 }
@@ -84,11 +84,11 @@ void ITMSceneReconstructionEngine_CUDA<TVoxel,ITMVoxelBlockHash>::ResetScene(ITM
 	memset(&tmpEntry, 0, sizeof(ITMHashEntry));
 	tmpEntry.ptr = -2;
 	ITMHashEntry *hashEntry_ptr = scene->index.GetEntries();
-	memsetKernel<ITMHashEntry>(hashEntry_ptr, tmpEntry, scene->index.noTotalEntries);
+	memsetKernel<ITMHashEntry>(hashEntry_ptr, tmpEntry,(sceneIsBackground? scene->index.noTotalEntries_BG:scene->index.noTotalEntries));
 	int *excessList_ptr = scene->index.GetExcessAllocationList();
-	fillArrayKernel<int>(excessList_ptr, SDF_EXCESS_LIST_SIZE);
+	fillArrayKernel<int>(excessList_ptr, (sceneIsBackground? SDF_EXCESS_LIST_SIZE_BG: SDF_EXCESS_LIST_SIZE));
 
-	scene->index.SetLastFreeExcessListId(SDF_EXCESS_LIST_SIZE - 1);
+	scene->index.SetLastFreeExcessListId((sceneIsBackground? SDF_EXCESS_LIST_SIZE_BG: SDF_EXCESS_LIST_SIZE) - 1);
 }
 
 template<class TVoxel>
@@ -120,7 +120,7 @@ void ITMSceneReconstructionEngine_CUDA<TVoxel, ITMVoxelBlockHash>::AllocateScene
 	ITMHashEntry *hashTable = scene->index.GetEntries();
 	ITMHashSwapState *swapStates = scene->globalCache != NULL ? scene->globalCache->GetSwapStates(true) : 0;
 
-	int noTotalEntries = scene->index.noTotalEntries;
+	int noTotalEntries = (sceneIsBackground? scene->index.noTotalEntries_BG:scene->index.noTotalEntries);
 
 	int *visibleEntryIDs = renderState_vh->GetVisibleEntryIDs();
 	uchar *entriesVisibleType = renderState_vh->GetEntriesVisibleType();
@@ -433,9 +433,9 @@ __global__ void allocateVoxelBlocksList_device(int *voxelAllocationList, int *ex
 
 			hashTable[targetIdx].offset = exlOffset + 1; //connect to child
 
-			hashTable[SDF_BUCKET_NUM + exlOffset] = hashEntry; //add child to the excess list
+			hashTable[(sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + exlOffset] = hashEntry; //add child to the excess list
 
-			entriesVisibleType[SDF_BUCKET_NUM + exlOffset] = 1; //make child visible
+			entriesVisibleType[(sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + exlOffset] = 1; //make child visible
 		}
 		else
 		{

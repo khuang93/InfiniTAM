@@ -9,7 +9,7 @@ using namespace ITMLib;
 template<class TVoxel>
 ITMSceneReconstructionEngine_CPU<TVoxel,ITMVoxelBlockHash>::ITMSceneReconstructionEngine_CPU(void) 
 {
-	int noTotalEntries = ITMVoxelBlockHash::noTotalEntries;
+	int noTotalEntries = (sceneIsBackground? ITMVoxelBlockHash::noTotalEntries_BG:ITMVoxelBlockHash::noTotalEntries);
 	entriesAllocType = new ORUtils::MemoryBlock<unsigned char>(noTotalEntries, MEMORYDEVICE_CPU);
 	blockCoords = new ORUtils::MemoryBlock<Vector4s>(noTotalEntries, MEMORYDEVICE_CPU);
 }
@@ -37,11 +37,11 @@ void ITMSceneReconstructionEngine_CPU<TVoxel,ITMVoxelBlockHash>::ResetScene(ITMS
 	memset(&tmpEntry, 0, sizeof(ITMHashEntry));
 	tmpEntry.ptr = -2;
 	ITMHashEntry *hashEntry_ptr = scene->index.GetEntries();
-	for (int i = 0; i < scene->index.noTotalEntries; ++i) hashEntry_ptr[i] = tmpEntry;
+	for (int i = 0; i < (sceneIsBackground? scene->index.noTotalEntries_BG:scene->index.noTotalEntries); ++i) hashEntry_ptr[i] = tmpEntry;
 	int *excessList_ptr = scene->index.GetExcessAllocationList();
-	for (int i = 0; i < SDF_EXCESS_LIST_SIZE; ++i) excessList_ptr[i] = i;
+	for (int i = 0; i < (sceneIsBackground? SDF_EXCESS_LIST_SIZE_BG: SDF_EXCESS_LIST_SIZE); ++i) excessList_ptr[i] = i;
 
-	scene->index.SetLastFreeExcessListId(SDF_EXCESS_LIST_SIZE - 1);
+	scene->index.SetLastFreeExcessListId((sceneIsBackground? SDF_EXCESS_LIST_SIZE_BG: SDF_EXCESS_LIST_SIZE) - 1);
 }
 
 template<class TVoxel>
@@ -145,7 +145,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 	uchar *entriesVisibleType = renderState_vh->GetEntriesVisibleType();
 	uchar *entriesAllocType = this->entriesAllocType->GetData(MEMORYDEVICE_CPU);
 	Vector4s *blockCoords = this->blockCoords->GetData(MEMORYDEVICE_CPU);
-	int noTotalEntries = scene->index.noTotalEntries;
+	int noTotalEntries = (sceneIsBackground? scene->index.noTotalEntries_BG:scene->index.noTotalEntries);
 
 	bool useSwapping = scene->globalCache != NULL;
 
@@ -225,9 +225,9 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 
 					hashTable[targetIdx].offset = exlOffset + 1; //connect to child
 
-					hashTable[SDF_BUCKET_NUM + exlOffset] = hashEntry; //add child to the excess list
+					hashTable[(sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + exlOffset] = hashEntry; //add child to the excess list
 
-					entriesVisibleType[SDF_BUCKET_NUM + exlOffset] = 1; //make child visible and in memory
+					entriesVisibleType[(sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + exlOffset] = 1; //make child visible and in memory
 				}
 				else
 				{
