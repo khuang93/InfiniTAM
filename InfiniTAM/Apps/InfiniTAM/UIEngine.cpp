@@ -272,7 +272,7 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 	case 'w':
 	{
 		printf("saving scene to model ... ");
-		uiEngine->mainEngine->SaveSceneToMesh("mesh.stl");
+		uiEngine->mainEngine->SaveSceneToMesh("this_mesh.stl");
 		printf("done\n");
 	}
 	break;

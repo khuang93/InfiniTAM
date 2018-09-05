@@ -13,7 +13,7 @@ ITMLibSettings::ITMLibSettings(void)
 	// skips every other point when using the colour renderer for creating a point cloud
 	skipPoints = true;
 
-	// create all the things required for marching cubes and mesh extraction
+	// create all the things required for marching cubes and this_mesh extraction
 	// - uses additional memory (lots!)
 	createMeshingEngine = true;
 

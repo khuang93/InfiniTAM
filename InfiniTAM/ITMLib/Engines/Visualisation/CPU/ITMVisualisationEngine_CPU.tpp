@@ -138,9 +138,9 @@ void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::CreateExpectedDepths(
 	//go through list of visible 8x8x8 blocks
 	for (int blockNo = 0; blockNo < noVisibleEntries; ++blockNo) {
 		const ITMHashEntry & blockData(scene->index.GetEntries()[visibleEntryIDs[blockNo]]);
-		std::cout<<"sceneIsBackground"<<sceneIsBackground<<std::endl;
-		std::cout<<"blockNo"<<blockNo<<std::endl;
-		std::cout<<"visibleEntryID"<<visibleEntryIDs[blockNo]<<std::endl;
+//		std::cout<<"sceneIsBackground"<<sceneIsBackground<<std::endl;
+//		std::cout<<"blockNo"<<blockNo<<std::endl;
+//		std::cout<<"visibleEntryID"<<visibleEntryIDs[blockNo]<<std::endl;
 		Vector2i upperLeft, lowerRight;
 		Vector2f zRange;
 		bool validProjection = false;

@@ -202,7 +202,6 @@ void ITMExtendedTracker::PrepareForEvaluation()
 	{
 		ITMDepthHierarchyLevel *currentLevel = viewHierarchy_Depth->GetLevel(i);
 		ITMDepthHierarchyLevel *previousLevel = viewHierarchy_Depth->GetLevel(i - 1);
-
 		lowLevelEngine->FilterSubsampleWithHoles(currentLevel->depth, previousLevel->depth);
 
 		currentLevel->intrinsics = previousLevel->intrinsics * 0.5f;
@@ -419,6 +418,7 @@ void ITMExtendedTracker::TrackCamera(ITMTrackingState *trackingState, const ITMV
 	else trackingState->framesProcessed = 0;
 
 	this->SetEvaluationData(trackingState, view);
+
 	this->PrepareForEvaluation();
 
 	float hessian_good[6 * 6];
