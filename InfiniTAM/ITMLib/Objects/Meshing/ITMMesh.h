@@ -17,12 +17,13 @@ namespace ITMLib
 		MemoryDeviceType memoryType;
 
 		uint noTotalTriangles;
-		static const uint noMaxTriangles_default = SDF_LOCAL_BLOCK_NUM_BG * 32 * 16;
+		static const uint noMaxTriangles_default_BG = SDF_LOCAL_BLOCK_NUM_BG * 32 * 16;
+	  	static const uint noMaxTriangles_default = SDF_LOCAL_BLOCK_NUM * 32 * 16;
 		uint noMaxTriangles;
 
 		ORUtils::MemoryBlock<Triangle> *triangles;
 
-		explicit ITMMesh(MemoryDeviceType memoryType, uint maxTriangles = noMaxTriangles_default)
+		explicit ITMMesh(MemoryDeviceType memoryType, uint maxTriangles = (sceneIsBackground ? noMaxTriangles_default_BG : noMaxTriangles_default))
 		{
 			this->memoryType = memoryType;
 			this->noTotalTriangles = 0;

@@ -64,7 +64,7 @@ namespace ITMLib
 		template <typename TVoxel, typename TIndex>
 		void Prepare(ITMTrackingState *trackingState, const ITMScene<TVoxel,TIndex> *scene, const ITMView *view,
 			const ITMVisualisationEngine<TVoxel,TIndex> *visualisationEngine, ITMRenderState *renderState)
-		{   /*std::cout<<"dbg Prepare!\n";*/
+		{
 			if (!tracker->requiresPointCloudRendering())
 				return;
 
@@ -99,7 +99,7 @@ namespace ITMLib
 		}
 
 		ITMTrackingController(ITMTracker *tracker, const ITMLibSettings *settings)
-		{   /*std::cout<<"dbg TController Constructor\n";*/
+		{
 			this->tracker = tracker;
 			this->settings = settings;
 		}
