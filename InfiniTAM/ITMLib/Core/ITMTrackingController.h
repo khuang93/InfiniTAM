@@ -3,114 +3,181 @@
 #pragma once
 
 #include <stdexcept>
+#include <vector>
 
 #include "../Engines/Visualisation/Interface/ITMSurfelVisualisationEngine.h"
 #include "../Engines/Visualisation/Interface/ITMVisualisationEngine.h"
 #include "../Trackers/Interface/ITMTracker.h"
 #include "../Utils/ITMLibSettings.h"
 
-namespace ITMLib
-{
-	/** \brief
-	*/
-	class ITMTrackingController
-	{
-	private:
-		const ITMLibSettings *settings;
-		ITMTracker *tracker;
+namespace ITMLib {
+/** \brief
+*/
+class ITMTrackingController {
+ private:
+  const ITMLibSettings *settings;
+  ITMTracker *tracker;
 
-	public:
-		void Track(ITMTrackingState *trackingState, const ITMView *view)
-		{
-			tracker->TrackCamera(trackingState, view);
-		}
+ public:
+  void Track(ITMTrackingState *trackingState, const ITMView *view) {
+    tracker->TrackCamera(trackingState, view);
+  }
 
-		template <typename TSurfel>
-		void Prepare(ITMTrackingState *trackingState, const ITMSurfelScene<TSurfel> *scene, const ITMView *view,
-			const ITMSurfelVisualisationEngine<TSurfel> *visualisationEngine, ITMSurfelRenderState *renderState)
-		{
-			if (!tracker->requiresPointCloudRendering())
-				return;
+  template<typename TSurfel>
+  void Prepare(ITMTrackingState *trackingState, const ITMSurfelScene<TSurfel> *scene, const ITMView *view,
+               const ITMSurfelVisualisationEngine<TSurfel> *visualisationEngine, ITMSurfelRenderState *renderState) {
+    if (!tracker->requiresPointCloudRendering())
+      return;
 
-			//render for tracking
-			bool requiresColourRendering = tracker->requiresColourRendering();
-			bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
+    //render for tracking
+    bool requiresColourRendering = tracker->requiresColourRendering();
+    bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
 
-			if(requiresColourRendering)
-			{
-				// TODO: This should be implemented at some point.
-				throw std::runtime_error("The surfel engine doesn't yet support colour trackers");
-			}
-			else
-			{
-				const bool useRadii = true;
-				visualisationEngine->FindSurface(scene, trackingState->pose_d, &view->calib.intrinsics_d, useRadii, USR_FAUTEDEMIEUX, renderState);
-				trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
+    if (requiresColourRendering) {
+      // TODO: This should be implemented at some point.
+      throw std::runtime_error("The surfel engine doesn't yet support colour trackers");
+    } else {
+      const bool useRadii = true;
+      visualisationEngine->FindSurface(scene,
+                                       trackingState->pose_d,
+                                       &view->calib.intrinsics_d,
+                                       useRadii,
+                                       USR_FAUTEDEMIEUX,
+                                       renderState);
+      trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
 
-				if(requiresFullRendering)
-				{
-					visualisationEngine->CreateICPMaps(scene, renderState, trackingState);
-					trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
-					if (trackingState->age_pointCloud==-1) trackingState->age_pointCloud=-2;
-					else trackingState->age_pointCloud = 0;
-				}
-				else
-				{
-					trackingState->age_pointCloud++;
-				}
-			}
-		}
+      if (requiresFullRendering) {
+        visualisationEngine->CreateICPMaps(scene, renderState, trackingState);
+        trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
+        if (trackingState->age_pointCloud == -1) trackingState->age_pointCloud = -2;
+        else trackingState->age_pointCloud = 0;
+      } else {
+        trackingState->age_pointCloud++;
+      }
+    }
+  }
 
-		template <typename TVoxel, typename TIndex>
-		void Prepare(ITMTrackingState *trackingState, const ITMScene<TVoxel,TIndex> *scene, const ITMView *view,
-			const ITMVisualisationEngine<TVoxel,TIndex> *visualisationEngine, ITMRenderState *renderState)
-		{
-			if (!tracker->requiresPointCloudRendering())
-				return;
+  template<typename TVoxel, typename TIndex>
+  void Prepare(ITMTrackingState *trackingState, const ITMScene<TVoxel, TIndex> *scene, const ITMView *view,
+               const ITMVisualisationEngine<TVoxel, TIndex> *visualisationEngine, ITMRenderState *renderState) {
+    if (!tracker->requiresPointCloudRendering())
+      return;
 
-			//render for tracking
-			bool requiresColourRendering = tracker->requiresColourRendering();
-			bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
+    //render for tracking
+    bool requiresColourRendering = tracker->requiresColourRendering();
+    bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
 
-			if (requiresColourRendering)
-			{
-				ORUtils::SE3Pose pose_rgb(view->calib.trafo_rgb_to_depth.calib_inv * trackingState->pose_d->GetM());
-				visualisationEngine->CreateExpectedDepths(scene, &pose_rgb, &(view->calib.intrinsics_rgb), renderState);
-				visualisationEngine->CreatePointCloud(scene, view, trackingState, renderState, settings->skipPoints);
-				trackingState->age_pointCloud = 0;
-			}
-			else
-			{
-				visualisationEngine->CreateExpectedDepths(scene, trackingState->pose_d, &(view->calib.intrinsics_d), renderState);
+    if (requiresColourRendering) {
+      ORUtils::SE3Pose pose_rgb(view->calib.trafo_rgb_to_depth.calib_inv * trackingState->pose_d->GetM());
+      visualisationEngine->CreateExpectedDepths(scene, &pose_rgb, &(view->calib.intrinsics_rgb), renderState);
+      visualisationEngine->CreatePointCloud(scene, view, trackingState, renderState, settings->skipPoints);
+      trackingState->age_pointCloud = 0;
+    } else {
+//				std::cout<<"pose"<<trackingState->pose_d->GetM()<<std::endl;
+      visualisationEngine->CreateExpectedDepths(scene, trackingState->pose_d, &(view->calib.intrinsics_d), renderState);
 
-				if (requiresFullRendering)
-				{
-					visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
-					trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
-					if (trackingState->age_pointCloud==-1) trackingState->age_pointCloud=-2;
-					else trackingState->age_pointCloud = 0;
-				}
-				else
-				{
-					visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
-					trackingState->age_pointCloud++;
-				}
-			}
-		}
+      if (requiresFullRendering) {
+        visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
+        trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
+        if (trackingState->age_pointCloud == -1) trackingState->age_pointCloud = -2;
+        else trackingState->age_pointCloud = 0;
+      } else {
+        visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
+        trackingState->age_pointCloud++;
+      }
+    }
+  }
+  //TODO New Prepare : this is not this easy
+  template<typename TVoxel, typename TIndex>
+  void Prepare(ITMTrackingState *trackingState,
+               ITMRenderState *renderState,
+               std::vector<ITMScene<TVoxel, TIndex> *> scene_vec,
+               std::vector<ITMView *> view_vec,
+               const ITMVisualisationEngine<TVoxel, TIndex> *visualisationEngine) {
 
-		ITMTrackingController(ITMTracker *tracker, const ITMLibSettings *settings)
-		{
-			this->tracker = tracker;
-			this->settings = settings;
-		}
+    if (!tracker->requiresPointCloudRendering())
+      return;
 
-		const Vector2i& GetTrackedImageSize(const Vector2i& imgSize_rgb, const Vector2i& imgSize_d) const
-		{
-			return tracker->requiresColourRendering() ? imgSize_rgb : imgSize_d;
-		}
+    if(scene_vec.size()!=view_vec.size()){
+      return;
+    }
 
-		// Suppress the default copy constructor and assignment operator
-		ITMTrackingController(const ITMTrackingController&);
-		ITMTrackingController& operator=(const ITMTrackingController&);
-	};
+    for(size_t i =0; i<scene_vec.size()&&i<view_vec.size(); ++i ){
+      sceneIsBackground = i==0? true:false;
+      auto* scene = scene_vec.at(i);
+      auto* view = view_vec.at(i);
+      Prepare(trackingState,scene,view, visualisationEngine,renderState);
+    }
+
+
+//    //render for tracking
+//    bool requiresColourRendering = tracker->requiresColourRendering();
+//    bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
+//
+//    visualisationEngine->CreateExpectedDepths(scene, trackingState->pose_d, &(view->calib.intrinsics_d), renderState);
+//
+//    if (requiresFullRendering) {
+//      visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
+//      trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
+//      if (trackingState->age_pointCloud == -1) trackingState->age_pointCloud = -2;
+//      else trackingState->age_pointCloud = 0;
+//    } else {
+//      visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
+//      trackingState->age_pointCloud++;
+//
+  }
+
+  /*
+    template <typename TVoxel, typename TIndex>
+    void Prepare(ITMTrackingState *trackingState, const std::vector<ITMScene<TVoxel,TIndex>> *scene, const ITMView *view,
+                 const ITMVisualisationEngine<TVoxel,TIndex> *visualisationEngine, ITMRenderState *renderState)
+    {
+      if (!tracker->requiresPointCloudRendering())
+        return;
+
+      //render for tracking
+      bool requiresColourRendering = tracker->requiresColourRendering();
+      bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
+
+      if (requiresColourRendering)
+      {
+        ORUtils::SE3Pose pose_rgb(view->calib.trafo_rgb_to_depth.calib_inv * trackingState->pose_d->GetM());
+        visualisationEngine->CreateExpectedDepths(scene, &pose_rgb, &(view->calib.intrinsics_rgb), renderState);
+        visualisationEngine->CreatePointCloud(scene, view, trackingState, renderState, settings->skipPoints);
+        trackingState->age_pointCloud = 0;
+      }
+      else
+      {
+//				std::cout<<"pose"<<trackingState->pose_d->GetM()<<std::endl;
+        visualisationEngine->CreateExpectedDepths(scene, trackingState->pose_d, &(view->calib.intrinsics_d), renderState);
+
+        if (requiresFullRendering)
+        {
+          visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
+          trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
+          if (trackingState->age_pointCloud==-1) trackingState->age_pointCloud=-2;
+          else trackingState->age_pointCloud = 0;
+        }
+        else
+        {
+          visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
+          trackingState->age_pointCloud++;
+        }
+      }
+    }
+
+*/
+  ITMTrackingController(ITMTracker *tracker, const ITMLibSettings *settings) {
+    this->tracker = tracker;
+    this->settings = settings;
+  }
+
+  const Vector2i &GetTrackedImageSize(const Vector2i &imgSize_rgb, const Vector2i &imgSize_d) const {
+    return tracker->requiresColourRendering() ? imgSize_rgb : imgSize_d;
+  }
+
+  // Suppress the default copy constructor and assignment operator
+  ITMTrackingController(const ITMTrackingController &);
+  ITMTrackingController &operator=(const ITMTrackingController &);
+};
 }

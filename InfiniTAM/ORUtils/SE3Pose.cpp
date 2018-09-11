@@ -1,6 +1,7 @@
 // Copyright 2014-2017 Oxford University Innovation Limited and the authors of InfiniTAM
 
 #include <math.h>
+#include <iostream>
 #include "SE3Pose.h"
 
 using namespace ORUtils;
@@ -86,6 +87,7 @@ void SE3Pose::SetFrom(const SE3Pose *pose)
 	this->params.each.rz = pose->params.each.rz;
 
 	M = pose->M;
+//	std::cout<<"SetFrom"<<M<<std::endl;
 }
 
 void SE3Pose::SetModelViewFromParams()

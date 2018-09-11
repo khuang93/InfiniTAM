@@ -116,6 +116,7 @@ template<class TVoxel>
 void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::CreateExpectedDepths(const ITMScene<TVoxel,ITMVoxelBlockHash> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
 	ITMRenderState *renderState) const
 {
+//	std::cout<<"pose"<<pose->GetM().m00<<std::endl;
 	Vector2i imgSize = renderState->renderingRangeImage->noDims;
 	Vector2f *minmaxData = renderState->renderingRangeImage->GetData(MEMORYDEVICE_CPU);
 
@@ -140,7 +141,7 @@ void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::CreateExpectedDepths(
 		const ITMHashEntry & blockData(scene->index.GetEntries()[visibleEntryIDs[blockNo]]);
 //		std::cout<<"sceneIsBackground"<<sceneIsBackground<<std::endl;
 //		std::cout<<"blockNo"<<blockNo<<std::endl;
-//		std::cout<<"visibleEntryID"<<visibleEntryIDs[blockNo]<<std::endl;
+
 		Vector2i upperLeft, lowerRight;
 		Vector2f zRange;
 		bool validProjection = false;
