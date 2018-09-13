@@ -10,6 +10,8 @@
 void SaveImageToFile(const ORUtils::Image<ORUtils::Vector4<unsigned char> >* image, const char* fileName, bool flipVertical = false);
 void SaveImageToFile(const ORUtils::Image<short>* image, const char* fileName);
 void SaveImageToFile(const ORUtils::Image<float>* image, const char* fileName);
+
+void SaveImageToFile(const ORUtils::Image<bool>* image, const char* fileName);
 bool ReadImageFromFile(ORUtils::Image<ORUtils::Vector4<unsigned char> >* image, const char* fileName);
 bool ReadImageFromFile(ORUtils::Image<short> *image, const char *fileName);
 

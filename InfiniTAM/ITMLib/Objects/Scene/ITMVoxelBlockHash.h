@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
-#include <src/ObjSLAM/ObjSLAMVoxelSceneParams.h>
+#include "../../../../../../src/ObjSLAM/ObjSLAMVoxelSceneParams.h"
 #endif
 
 #include "../../Utils/ITMMath.h"

@@ -14,6 +14,7 @@
 
 #ifdef USE_LIBPNG
 #include <png.h>
+#include <iostream>
 #endif
 
 using namespace std;
@@ -326,6 +327,25 @@ void SaveImageToFile(const ORUtils::Image<float>* image, const char* fileName)
 	fclose(f);
 
 	delete[] data;
+}
+
+void SaveImageToFile(const ORUtils::Image<bool>* image, const char* fileName)
+{
+	short *data = (short*)malloc(sizeof(short) * image->dataSize);
+	const int *dataSource = new int[image->dataSize];
+	//		(int*)image->GetData(MEMORYDEVICE_CPU);
+	for (size_t i = 0; i < image->dataSize; i++) {
+		data[i] = image->GetData(MEMORYDEVICE_CPU)[i]== true? 100 : 0/*    dataSource[i] << 8) | ((dataSource[i] >> 8) & 255)*/;
+	}
+
+	FILE *f = fopen(fileName, "wb");
+	if (!pnm_writeheader(f, image->noDims.x, image->noDims.y, MONO_16u)) {
+		fclose(f); return;
+	}
+	pnm_writedata(f, image->noDims.x, image->noDims.y, MONO_16u, data);
+	fclose(f);
+
+	delete data;
 }
 
 bool ReadImageFromFile(ORUtils::Image<ORUtils::Vector4<unsigned char> > * image, const char* fileName)
