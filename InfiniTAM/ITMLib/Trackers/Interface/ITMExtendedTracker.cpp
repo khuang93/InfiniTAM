@@ -15,7 +15,7 @@
 
 using namespace ITMLib;
 
-const int ITMExtendedTracker::MIN_VALID_POINTS_DEPTH = 100;
+const int ITMExtendedTracker::																																																																			MIN_VALID_POINTS_DEPTH = 100;
 const int ITMExtendedTracker::MIN_VALID_POINTS_RGB = 100;
 
 ITMExtendedTracker::ITMExtendedTracker(Vector2i imgSize_d,

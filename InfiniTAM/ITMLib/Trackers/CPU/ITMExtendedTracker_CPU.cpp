@@ -76,7 +76,7 @@ int ITMExtendedTracker_CPU::ComputeGandH_Depth(float &f, float *nabla, float *he
 
 		float depthWeight;
 
-		if (framesProcessed < 100)
+		if (framesProcessed < 100) //100
 		{
 			switch (currentIterationType)
 			{

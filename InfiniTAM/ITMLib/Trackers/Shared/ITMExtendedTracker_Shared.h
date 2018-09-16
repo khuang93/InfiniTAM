@@ -111,7 +111,8 @@ _CPU_AND_GPU_CODE_ inline bool computePerPointGH_exDepth_Ab(THREADPTR(float) *A,
 
 	depthWeight = MAX(0.0f, 1.0f - (depth - viewFrustum_min) / (viewFrustum_max - viewFrustum_min));
 	depthWeight *= depthWeight;
-
+//	std::cout<<"depthWeight "<<depthWeight<<std::endl;
+//	std::cout<<"curr3Dpoint "<<curr3Dpoint <<std::endl;
 	if (useWeights)
 	{
 		if (curr3Dpoint.w < framesToSkip) return false;
