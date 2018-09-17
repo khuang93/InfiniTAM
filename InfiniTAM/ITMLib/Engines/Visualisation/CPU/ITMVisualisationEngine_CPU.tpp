@@ -168,7 +168,7 @@ void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::CreateExpectedDepths(
 
 		for (int y = b.upperLeft.y; y <= b.lowerRight.y; ++y) {
 			for (int x = b.upperLeft.x; x <= b.lowerRight.x; ++x) {
-				Vector2f & pixel(minmaxData[x + y*imgSize.x]);
+				Vector2f & pixel(minmaxData[x + y*imgSize.x]);	//creating a reference
 				if (pixel.x > b.zRange.x) pixel.x = b.zRange.x;
 				if (pixel.y < b.zRange.y) pixel.y = b.zRange.y;
 			}

@@ -380,8 +380,11 @@ _CPU_AND_GPU_CODE_ inline void processPixelICP(DEVICEPTR(Vector4f) *pointsMap, D
 		outNormal4.x = outNormal.x; outNormal4.y = outNormal.y; outNormal4.z = outNormal.z; outNormal4.w = 0.0f;
 		normalsMap[locId] = outNormal4;
 	}
+	else if(pointsMap[locId].w>0.0f){
+		return;
+	}
 	else
-	{
+	{//TODO Each obj this will reset the empty areas! change it! --> not enough
 		Vector4f out4;
 		out4.x = 0.0f; out4.y = 0.0f; out4.z = 0.0f; out4.w = -1.0f;
 

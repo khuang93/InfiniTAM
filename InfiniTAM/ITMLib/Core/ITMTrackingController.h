@@ -73,7 +73,7 @@ class ITMTrackingController {
       visualisationEngine->CreatePointCloud(scene, view, trackingState, renderState, settings->skipPoints);
       trackingState->age_pointCloud = 0;
     } else {
-//				std::cout<<"pose"<<trackingState->pose_d->GetM()<<std::endl;
+
       visualisationEngine->CreateExpectedDepths(scene, trackingState->pose_d, &(view->calib.intrinsics_d), renderState);
 
       if (requiresFullRendering) {
@@ -95,20 +95,35 @@ class ITMTrackingController {
                std::vector<ITMView *> view_vec,
                const ITMVisualisationEngine<TVoxel, TIndex> *visualisationEngine) {
 
+    std::cout << "requiresPointCloudRendering"<<tracker->requiresPointCloudRendering();
     if (!tracker->requiresPointCloudRendering())
       return;
-
-    if(scene_vec.size()!=view_vec.size()){
+    //render for tracking
+    bool requiresColourRendering = tracker->requiresColourRendering();
+    bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
+    std::cout << "requiresColourRendering"<<requiresColourRendering<<"requiresFullRendering"<<requiresFullRendering;
+    if (scene_vec.size() != view_vec.size()) {
       return;
     }
 
-    for(size_t i =0; i<scene_vec.size()&&i<view_vec.size(); ++i ){
-      sceneIsBackground = i==0? true:false;
-      auto* scene = scene_vec.at(i);
-      auto* view = view_vec.at(i);
-      Prepare(trackingState,scene,view, visualisationEngine,renderState);
+    for (size_t i = 0; i < scene_vec.size() && i < view_vec.size(); ++i) {
+      sceneIsBackground = i == 0 ? true : false;
+      auto *scene = scene_vec.at(i);
+      auto *view = view_vec.at(i);
+//      Prepare(trackingState,scene,view, visualisationEngine,renderState);
+      if (requiresFullRendering) {
+        visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
+        trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
+        std::cout << i;
+      } else {
+        visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
+        trackingState->age_pointCloud++;
+      }
     }
-
+    if (requiresFullRendering) {
+      if (trackingState->age_pointCloud == -1) trackingState->age_pointCloud = -2;
+      else trackingState->age_pointCloud = 0;
+    }
 
 //    //render for tracking
 //    bool requiresColourRendering = tracker->requiresColourRendering();
@@ -124,7 +139,7 @@ class ITMTrackingController {
 //    } else {
 //      visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
 //      trackingState->age_pointCloud++;
-//
+
   }
 
   ITMTrackingController(ITMTracker *tracker, const ITMLibSettings *settings) {
