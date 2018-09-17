@@ -371,16 +371,21 @@ _CPU_AND_GPU_CODE_ inline void processPixelICP(DEVICEPTR(Vector4f) *pointsMap, D
 
 	if (foundPoint)
 	{
+
 		Vector4f outPoint4;
 		outPoint4.x = point.x * voxelSize; outPoint4.y = point.y * voxelSize;
 		outPoint4.z = point.z * voxelSize; outPoint4.w = point.w;//outPoint4.w = 1.0f;
-		pointsMap[locId] = outPoint4;
 
 		Vector4f outNormal4;
 		outNormal4.x = outNormal.x; outNormal4.y = outNormal.y; outNormal4.z = outNormal.z; outNormal4.w = 0.0f;
-		normalsMap[locId] = outNormal4;
+
+		//use the smallest depth --> the surface closest to the camera
+//		if(pointsMap[locId].w>0.0f && pointsMap[locId].z>outPoint4.z){
+			pointsMap[locId] = outPoint4;
+			normalsMap[locId] = outNormal4;
+//		}
 	}
-	else if(pointsMap[locId].w>0.0f){
+	else if(pointsMap[locId].w>0.0f){ //the current view is empty here but this point is already set with previous ones
 		return;
 	}
 	else
@@ -391,6 +396,46 @@ _CPU_AND_GPU_CODE_ inline void processPixelICP(DEVICEPTR(Vector4f) *pointsMap, D
 		pointsMap[locId] = out4; normalsMap[locId] = out4;
 	}
 }
+
+//original version
+/*template<bool useSmoothing, bool flipNormals>
+_CPU_AND_GPU_CODE_ inline void processPixelICP(DEVICEPTR(Vector4f) *pointsMap, DEVICEPTR(Vector4f) *normalsMap,
+											   const CONSTPTR(Vector4f) *pointsRay, const THREADPTR(Vector2i) &imgSize, const THREADPTR(int) &x, const THREADPTR(int) &y, float voxelSize,
+											   const THREADPTR(Vector3f) &lightSource)
+{
+	Vector3f outNormal;
+	float angle;
+
+	int locId = x + y * imgSize.x;
+	Vector4f point = pointsRay[locId];
+
+	bool foundPoint = point.w > 0.0f;
+
+	computeNormalAndAngle<useSmoothing, flipNormals>(foundPoint, x, y, pointsRay, lightSource, voxelSize, imgSize, outNormal, angle);
+
+	if (foundPoint&&pointsMap[locId].w>0.0f)
+	{
+
+		Vector4f outPoint4;
+		outPoint4.x = point.x * voxelSize; outPoint4.y = point.y * voxelSize;
+		outPoint4.z = point.z * voxelSize; outPoint4.w = point.w;//outPoint4.w = 1.0f;
+
+		pointsMap[locId] = outPoint4;
+
+
+		Vector4f outNormal4;
+		outNormal4.x = outNormal.x; outNormal4.y = outNormal.y; outNormal4.z = outNormal.z; outNormal4.w = 0.0f;
+
+		normalsMap[locId] = outNormal4;
+	}
+	else
+	{
+		Vector4f out4;
+		out4.x = 0.0f; out4.y = 0.0f; out4.z = 0.0f; out4.w = -1.0f;
+
+		pointsMap[locId] = out4; normalsMap[locId] = out4;
+	}
+}*/
 
 template<bool useSmoothing, bool flipNormals>
 _CPU_AND_GPU_CODE_ inline void processPixelGrey_ImageNormals(DEVICEPTR(Vector4u) *outRendering, const CONSTPTR(Vector4f) *pointsRay, 
