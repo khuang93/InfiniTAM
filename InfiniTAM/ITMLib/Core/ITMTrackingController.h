@@ -4,11 +4,13 @@
 
 #include <stdexcept>
 #include <vector>
+#include <src/ObjSLAM/ObjSLAMDataTypes.h>
 
 #include "../Engines/Visualisation/Interface/ITMSurfelVisualisationEngine.h"
 #include "../Engines/Visualisation/Interface/ITMVisualisationEngine.h"
 #include "../Trackers/Interface/ITMTracker.h"
 #include "../Utils/ITMLibSettings.h"
+
 
 namespace ITMLib {
 /** \brief
@@ -88,7 +90,41 @@ class ITMTrackingController {
     }
   }
 
-  //TODO New Prepare : this is not this easy
+  template<typename TVoxel, typename TIndex>
+  void Prepare(ITMTrackingState *trackingState,
+               ITMRenderState *renderState,
+               std::vector<ObjSLAM::ObjectInstance_New_ptr<TVoxel, TIndex>> obj_inst_ptr_vector,
+               const ITMVisualisationEngine<TVoxel, TIndex> *visualisationEngine){
+    if (!tracker->requiresPointCloudRendering())
+      return;
+    //render for tracking
+    bool requiresColourRendering = tracker->requiresColourRendering();
+    bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
+//    std::cout << "requiresColourRendering"<<requiresColourRendering<<"requiresFullRendering"<<requiresFullRendering;
+
+
+    for (size_t i = 0; i < obj_inst_ptr_vector.size(); ++i) {
+      sceneIsBackground = i == 0 ? true : false;
+      ObjSLAM::ObjectInstance_New_ptr<TVoxel, TIndex> obj_inst_ptr = obj_inst_ptr_vector.at(i);
+
+      const auto *scene = obj_inst_ptr->getScene().get();
+      const auto *view = obj_inst_ptr->getCurrentView().get();
+//      Prepare(trackingState,scene,view, visualisationEngine,renderState);
+      if (requiresFullRendering) {
+        visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
+        trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
+      } else {
+        visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
+        trackingState->age_pointCloud++;
+      }
+    }
+    if (requiresFullRendering) {
+      if (trackingState->age_pointCloud == -1) trackingState->age_pointCloud = -2;
+      else trackingState->age_pointCloud = 0;
+    }
+  }
+
+  //TODO New Prepare : this only works when first scene is BG, check why
   template<typename TVoxel, typename TIndex>
   void Prepare(ITMTrackingState *trackingState,
                ITMRenderState *renderState,
@@ -107,6 +143,7 @@ class ITMTrackingController {
       return;
     }
 
+    //cannot really add OMP because shared tracking and renderstate
     for (size_t i = 0; i < scene_vec.size() && i < view_vec.size(); ++i) {
       sceneIsBackground = i == 0 ? true : false;
       auto *scene = scene_vec.at(i);
