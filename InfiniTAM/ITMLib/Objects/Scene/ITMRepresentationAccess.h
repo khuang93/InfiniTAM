@@ -85,6 +85,11 @@ _CPU_AND_GPU_CODE_ inline TVoxel readVoxel(const CONSTPTR(TVoxel) *voxelData, co
 
 	while (true)
 	{
+
+//		if(hashIdx>(sceneIsBackground? SDF_HASH_MASK_BG: SDF_HASH_MASK)) {
+//			vmIndex=false;
+//			return TVoxel();
+//		}
 		ITMHashEntry hashEntry = voxelIndex[hashIdx];
 
 		if (IS_EQUAL3(hashEntry.pos, blockPos) && hashEntry.ptr >= 0)
@@ -94,7 +99,7 @@ _CPU_AND_GPU_CODE_ inline TVoxel readVoxel(const CONSTPTR(TVoxel) *voxelData, co
 
 			return voxelData[cache.blockPtr + linearIdx];
 		}
-
+//TODO hash.offset exceeds the array length
 		if (hashEntry.offset < 1) break;
 		hashIdx = (sceneIsBackground? SDF_BUCKET_NUM_BG: SDF_BUCKET_NUM) + hashEntry.offset - 1;
 	}

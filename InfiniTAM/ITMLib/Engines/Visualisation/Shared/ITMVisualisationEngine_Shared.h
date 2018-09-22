@@ -507,6 +507,7 @@ _CPU_AND_GPU_CODE_ inline void processPixelColour(DEVICEPTR(Vector4u) &outRender
 	bool foundPoint, const CONSTPTR(TVoxel) *voxelData, const CONSTPTR(typename TIndex::IndexData) *voxelIndex)
 {
 	if (foundPoint) drawPixelColour<TVoxel, TIndex>(outRendering, point, voxelData, voxelIndex);
+	//TODO change this reset so many objs can be rendered into 1 img
 	else outRendering = Vector4u((uchar)0);
 }
 
