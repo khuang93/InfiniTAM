@@ -127,6 +127,12 @@ struct ITMVoxel_s
 	}
 };
 
+struct ITMVoxel_s_vote : public ITMVoxel_s
+{
+	/** In how many views are this voxel seen as a part of the object*/
+	short view_count=0;
+};
+
 struct ITMVoxel_f
 {
 	_CPU_AND_GPU_CODE_ static float SDF_initialValue() { return 1.0f; }
