@@ -78,7 +78,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::IntegrateIntoS
 	//bool approximateIntegration = !trackingState->requiresFullRendering;
 
 #ifdef WITH_OPENMP
-	#pragma omp parallel for
+	#pragma omp parallel for private(sceneIsBackground)
 #endif
 	for (int entryId = 0; entryId < noVisibleEntries; entryId++)
 	{
