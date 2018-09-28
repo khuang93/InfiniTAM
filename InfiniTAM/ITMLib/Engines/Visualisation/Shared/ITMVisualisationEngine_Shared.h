@@ -166,8 +166,8 @@ _CPU_AND_GPU_CODE_ inline bool castRay(DEVICEPTR(Vector4f) &pt_out, DEVICEPTR(uc
 
 		pt_found = true;
 	} else pt_found = false;
-
-	pt_out.x = pt_result.x; pt_out.y = pt_result.y; pt_out.z = pt_result.z;
+	//TODO z choose the smallest distance.
+	pt_out.x = pt_result.x; pt_out.y = pt_result.y; pt_out.z = /*(pt_out.z>pt_result.z) ? */pt_result.z /*: pt_out.z*/;
 	if (pt_found) pt_out.w = confidence + 1.0f; else pt_out.w = 0.0f;
 
 	return pt_found;
@@ -500,7 +500,7 @@ _CPU_AND_GPU_CODE_ inline void processPixelGrey(DEVICEPTR(Vector4u) &outRenderin
 
 	if (foundPoint) drawPixelGrey(outRendering, angle);
 	//TODO change this reset so many objs can be rendered into 1 img
-//	else outRendering = Vector4u((uchar)0);
+	else outRendering = Vector4u((uchar)0);
 }
 
 template<class TVoxel, class TIndex>
