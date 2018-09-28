@@ -499,7 +499,8 @@ _CPU_AND_GPU_CODE_ inline void processPixelGrey(DEVICEPTR(Vector4u) &outRenderin
 	computeNormalAndAngle<TVoxel, TIndex>(foundPoint, point, voxelData, voxelIndex, lightSource, outNormal, angle);
 
 	if (foundPoint) drawPixelGrey(outRendering, angle);
-	else outRendering = Vector4u((uchar)0);
+	//TODO change this reset so many objs can be rendered into 1 img
+//	else outRendering = Vector4u((uchar)0);
 }
 
 template<class TVoxel, class TIndex>
