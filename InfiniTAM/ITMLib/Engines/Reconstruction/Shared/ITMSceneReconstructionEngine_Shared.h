@@ -44,7 +44,7 @@ _CPU_AND_GPU_CODE_ inline float computeUpdatedVoxelDepthInfo(DEVICEPTR(TVoxel) &
 	// write back
 	voxel.sdf = TVoxel::floatToValue(newF);
 	voxel.w_depth = newW;
-
+	voxel.alloc_count++;
 	return eta;
 }
 

@@ -75,6 +75,63 @@ void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::FindVisibleBlocks(con
 	renderState_vh->noVisibleEntries = noVisibleEntries;
 }
 
+
+template<class TVoxel, class TIndex>
+void ITMVisualisationEngine_CPU<TVoxel, TIndex>::FindVisibleBlocksAndUpdateViewCount(ITMScene<TVoxel,TIndex> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics, ITMRenderState *renderState) const
+{
+}
+
+template<class TVoxel>
+void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::FindVisibleBlocksAndUpdateViewCount(ITMScene<TVoxel,ITMVoxelBlockHash> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
+																			 ITMRenderState *renderState) const
+{
+	const ITMHashEntry *hashTable = scene->index.GetEntries();
+	int noTotalEntries = (sceneIsBackground? scene->index.noTotalEntries_BG:scene->index.noTotalEntries);
+	float voxelSize = scene->sceneParams->voxelSize;
+	Vector2i imgSize = renderState->renderingRangeImage->noDims;
+
+	Matrix4f M = pose->GetM();
+	Vector4f projParams = intrinsics->projectionParamsSimple.all;
+
+	ITMRenderState_VH *renderState_vh = (ITMRenderState_VH*)renderState;
+
+	int noVisibleEntries = 0;
+	int *visibleEntryIDs = renderState_vh->GetVisibleEntryIDs();
+	TVoxel * voxelData = scene->localVBA.GetVoxelBlocks();
+
+	//build visible list
+	for (int targetIdx = 0; targetIdx < noTotalEntries; targetIdx++)
+	{
+		unsigned char hashVisibleType = 0;// = entriesVisibleType[targetIdx];
+		const ITMHashEntry &hashEntry = hashTable[targetIdx];
+
+		if (hashEntry.ptr >= 0)
+		{
+			bool isVisible, isVisibleEnlarged;
+			checkBlockVisibility<false>(isVisible, isVisibleEnlarged, hashEntry.pos, M, projParams, voxelSize, imgSize);
+			hashVisibleType = isVisible;
+		}
+
+		if (hashVisibleType > 0)
+		{
+			visibleEntryIDs[noVisibleEntries] = targetIdx;
+
+			//increment view count
+			int blockIdx = hashEntry.ptr*SDF_BLOCK_SIZE3;
+			for (int idx = blockIdx; idx < blockIdx+SDF_BLOCK_SIZE3; idx++){
+
+				TVoxel& vox = voxelData[idx];
+				voxelData[idx].view_count++;
+
+			}
+
+			noVisibleEntries++;
+		}
+	}
+
+	renderState_vh->noVisibleEntries = noVisibleEntries;
+}
+
 template<class TVoxel, class TIndex>
 int ITMVisualisationEngine_CPU<TVoxel, TIndex>::CountVisibleBlocks(const ITMScene<TVoxel,TIndex> *scene, const ITMRenderState *renderState, int minBlockId, int maxBlockId) const
 {

@@ -131,6 +131,7 @@ struct ITMVoxel_s_vote : public ITMVoxel_s
 {
 	/** In how many views are this voxel seen as a part of the object*/
 	short view_count=0;
+	short alloc_count=0;
 };
 
 struct ITMVoxel_f

@@ -108,9 +108,8 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::IntegrateIntoS
 			pt_model.z = (float)(globalPos.z + z) * voxelSize;
 			pt_model.w = 1.0f;
 
-//			localVoxelBlock[locId].view_count++;
-
-
+			localVoxelBlock[locId].view_count++;
+//
 			ComputeUpdatedVoxelInfo<TVoxel::hasColorInformation,TVoxel::hasConfidenceInformation, TVoxel>::compute(localVoxelBlock[locId], pt_model, M_d, 
 				projParams_d, M_rgb, projParams_rgb, mu, maxW, depth, confidence, depthImgSize, rgb, rgbImgSize);
 		}
@@ -245,6 +244,7 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 		}
 	}
 
+	TVoxel * voxelData = scene->localVBA.GetVoxelBlocks();
 	//build visible list
 	for (int targetIdx = 0; targetIdx < noTotalEntries; targetIdx++)
 	{
@@ -275,6 +275,15 @@ void ITMSceneReconstructionEngine_CPU<TVoxel, ITMVoxelBlockHash>::AllocateSceneF
 		{	
 			visibleEntryIDs[noVisibleEntries] = targetIdx;
 			noVisibleEntries++;
+
+/*			//increment view count
+			int blockIdx = hashEntry.ptr*SDF_BLOCK_SIZE3;
+			for (int idx = blockIdx; idx < blockIdx+SDF_BLOCK_SIZE3; idx++){
+
+				TVoxel& vox = voxelData[idx];
+				voxelData[idx].view_count++;
+
+			}*/
 		}
 
 #if 0

@@ -67,6 +67,9 @@ namespace ITMLib
 		virtual void FindVisibleBlocks(const ITMScene<TVoxel,TIndex> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
 			ITMRenderState *renderState) const = 0;
 
+		virtual void FindVisibleBlocksAndUpdateViewCount(ITMScene<TVoxel,TIndex> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
+									   ITMRenderState *renderState) const = 0;
+
 		/** Given a render state, Count the number of visible blocks
 		with minBlockId <= blockID <= maxBlockId .
 		*/
