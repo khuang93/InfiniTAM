@@ -290,26 +290,41 @@ static void GenericRaycastMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, 
 	const Vector2f *minmaximg = renderState->renderingRangeImage->GetData(MEMORYDEVICE_CPU);
 	float mu;
 	float oneOverVoxelSize;
+
 	std::vector<const CONSTPTR(TVoxel)*> voxelData_vec;
+
 	std::vector</*const*/ ITMHashEntry*> voxelIndex_vec;
-	voxelData_vec.reserve(obj_inst_ptr_vector.size());
-	voxelIndex_veccast .reserve(obj_inst_ptr_vector.size());
+
+//	voxelData_vec.reserve(obj_inst_ptr_vector.size());
+//
+//	voxelIndex_vec.reserve(obj_inst_ptr_vector.size());
+
 	std::vector<uchar*> entriesVisibleType_vec;
+
 	Vector4f *pointsRay = renderState->raycastResult->GetData(MEMORYDEVICE_CPU);
+
+
+	//TODO this loop is very WEIRD... cannot push back to 2 vectors same time.
 	for (size_t i = 0; i < obj_inst_ptr_vector.size(); ++i) {
 		sceneIsBackground = i == 0 ? true : false;
 		ObjSLAM::ObjectInstance_ptr<TVoxel, TIndex> obj_inst_ptr = obj_inst_ptr_vector.at(i);
 
 		auto scene = obj_inst_ptr->GetScene();
+		/*const*/ ITMHashEntry* voxelIndex = scene->index.getIndexData();
 
 		const TVoxel* voxelData = scene->localVBA.GetVoxelBlocks();
-		voxelData_vec.push_back(voxelData);
-		/*const*/ ITMHashEntry* voxelIndex = scene->index.getIndexData();
-		voxelIndex_vec.push_back(voxelIndex);
 
+		voxelIndex_vec.push_back(voxelIndex);
 
 		mu = scene->sceneParams->mu;
 		oneOverVoxelSize = 1.0f / scene->sceneParams->voxelSize;
+
+
+		voxelData_vec.push_back(voxelData);
+
+
+
+
 
 
 //TODO check why no value in voxelIndex, voxelData is good
@@ -317,7 +332,7 @@ static void GenericRaycastMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, 
 		if (updateVisibleList && (dynamic_cast<const ITMRenderState_VH *>(renderState) != NULL)) {
 			entriesVisibleType = ((ITMRenderState_VH *) renderState)->GetEntriesVisibleType();
 		}
-		entriesVisibleType_vec.push_back(entriesVisibleType);
+//		entriesVisibleType_vec.push_back(entriesVisibleType);
 
 	}
 
