@@ -16,6 +16,7 @@ typedef ITMLib::ITMSurfel_rgb ITMSurfelT;
     options are ITMVoxel_s, ITMVoxel_f, ITMVoxel_s_rgb and ITMVoxel_f_rgb.
 */
 typedef ITMVoxel_s_vote ITMVoxel;
+//typedef ITMVoxel_s_rgb_vote ITMVoxel;
 //typedef ITMVoxel_s_rgb ITMVoxel;
 
 
