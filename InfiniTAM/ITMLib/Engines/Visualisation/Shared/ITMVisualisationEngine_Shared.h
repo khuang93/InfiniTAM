@@ -99,7 +99,7 @@ _CPU_AND_GPU_CODE_ inline void CreateRenderingBlocks(DEVICEPTR(RenderingBlock) *
 #endif
 
 template<class TVoxel, class TIndex, bool modifyVisibleEntries>
-_CPU_AND_GPU_CODE_ inline bool castRay(DEVICEPTR(Vector4f) &pt_out, DEVICEPTR(uchar) *entriesVisibleType, 
+_CPU_AND_GPU_CODE_ inline bool castRay(DEVICEPTR(Vector4f) &pt_out, DEVICEPTR(uchar) *entriesVisibleType,
 	int x, int y, const CONSTPTR(TVoxel) *voxelData, const CONSTPTR(typename TIndex::IndexData) *voxelIndex, 
 	Matrix4f invM, Vector4f invProjParams, float oneOverVoxelSize, float mu, const CONSTPTR(Vector2f) & viewFrustum_minmax)
 {
@@ -150,7 +150,7 @@ _CPU_AND_GPU_CODE_ inline bool castRay(DEVICEPTR(Vector4f) &pt_out, DEVICEPTR(uc
 			if (sdfValue <= 0.0f) break;
 			stepLength = MAX(sdfValue * stepScale, 1.0f);
 		}
-
+//		std::cout<<sdfValue<<std::endl;
 		pt_result += stepLength * rayDirection; totalLength += stepLength;
 	}
 
@@ -168,6 +168,95 @@ _CPU_AND_GPU_CODE_ inline bool castRay(DEVICEPTR(Vector4f) &pt_out, DEVICEPTR(uc
 	} else pt_found = false;
 	//TODO z choose the smallest distance.
 	pt_out.x = pt_result.x; pt_out.y = pt_result.y; pt_out.z = /*(pt_out.z>pt_result.z) ? */pt_result.z /*: pt_out.z*/;
+	if (pt_found) pt_out.w = confidence + 1.0f; else pt_out.w = 0.0f;
+
+	return pt_found;
+}
+
+template<class TVoxel, class TIndex>
+_CPU_AND_GPU_CODE_ inline bool castRayMulti(DEVICEPTR(Vector4f) &pt_out, std::vector<DEVICEPTR(uchar) *>& entriesVisibleType,
+									   int x, int y, std::vector<const CONSTPTR(TVoxel) *>& voxelData_vec, std::vector</*const*/ CONSTPTR(typename TIndex::IndexData) *>& voxelIndex_vec,
+									   Matrix4f invM, Vector4f invProjParams, float oneOverVoxelSize, float mu, const CONSTPTR(Vector2f) & viewFrustum_minmax)
+{
+	Vector4f pt_camera_f; Vector3f pt_block_s, pt_block_e, rayDirection, pt_result;
+	bool pt_found;
+	int vmIndex;
+	float sdfValue = 1.0f, confidence;
+	float sdfValue_final = 1.0f;
+	float totalLength, stepLength, totalLengthMax, stepScale;
+
+	stepScale = mu * oneOverVoxelSize;
+
+	pt_camera_f.z = viewFrustum_minmax.x;
+	pt_camera_f.x = pt_camera_f.z * ((float(x) + invProjParams.z) * invProjParams.x);
+	pt_camera_f.y = pt_camera_f.z * ((float(y) + invProjParams.w) * invProjParams.y);
+	pt_camera_f.w = 1.0f;
+	totalLength = length(TO_VECTOR3(pt_camera_f)) * oneOverVoxelSize;
+	pt_block_s = TO_VECTOR3(invM * pt_camera_f) * oneOverVoxelSize;
+
+	pt_camera_f.z = viewFrustum_minmax.y;
+	pt_camera_f.x = pt_camera_f.z * ((float(x) + invProjParams.z) * invProjParams.x);
+	pt_camera_f.y = pt_camera_f.z * ((float(y) + invProjParams.w) * invProjParams.y);
+	pt_camera_f.w = 1.0f;
+	totalLengthMax = length(TO_VECTOR3(pt_camera_f)) * oneOverVoxelSize;
+	pt_block_e = TO_VECTOR3(invM * pt_camera_f) * oneOverVoxelSize;
+
+	rayDirection = pt_block_e - pt_block_s;
+	float direction_norm = 1.0f / sqrt(rayDirection.x * rayDirection.x + rayDirection.y * rayDirection.y + rayDirection.z * rayDirection.z);
+	rayDirection *= direction_norm;
+
+	pt_result = pt_block_s;
+
+	int index_with_min_sdf_value = 0;
+
+	typename TIndex::IndexCache cache;
+
+	while (totalLength < totalLengthMax) {
+
+		for (size_t i = 0; i < voxelData_vec.size(); ++i) {
+			sceneIsBackground = i==0? true : false; //0 is BG
+			sdfValue = readFromSDF_float_uninterpolated(voxelData_vec.at(i), voxelIndex_vec.at(i), pt_result, vmIndex, cache);
+
+/*			if (modifyVisibleEntries) //if entriesvisibletype = null
+			{
+				if (vmIndex) entriesVisibleType[vmIndex - 1] = 1;
+			}*/
+
+			if (!vmIndex) {
+				stepLength = SDF_BLOCK_SIZE;
+			} else {
+				if ((sdfValue <= 0.1f) && (sdfValue >= -0.5f)) {
+					sdfValue = readFromSDF_float_interpolated(voxelData_vec.at(i), voxelIndex_vec.at(i), pt_result, vmIndex, cache);
+				}
+				if (sdfValue <= 0.0f) break;
+				stepLength = MAX(sdfValue * stepScale, 1.0f);
+			}
+
+			if(sdfValue<sdfValue_final) {
+				sdfValue_final=sdfValue; //get the smallest SDF from all scenes
+				index_with_min_sdf_value = i;
+			}
+//			std::cout<<sdfValue<<" "<<sdfValue_final<<std::endl;
+			pt_result += stepLength * rayDirection; totalLength += stepLength;
+		}
+
+	}
+
+	sceneIsBackground = index_with_min_sdf_value == 0 ? true : false;
+	if (sdfValue_final <= 0.0f)
+	{
+		stepLength = sdfValue_final * stepScale;
+		pt_result += stepLength * rayDirection;
+
+		sdfValue_final = readWithConfidenceFromSDF_float_interpolated(confidence, voxelData_vec.at(index_with_min_sdf_value), voxelIndex_vec.at(index_with_min_sdf_value), pt_result, vmIndex, cache);
+
+		stepLength = sdfValue_final * stepScale;
+		pt_result += stepLength * rayDirection;
+
+		pt_found = true;
+	} else pt_found = false;
+
+	pt_out.x = pt_result.x; pt_out.y = pt_result.y; pt_out.z = pt_result.z;
 	if (pt_found) pt_out.w = confidence + 1.0f; else pt_out.w = 0.0f;
 
 	return pt_found;
@@ -500,7 +589,7 @@ _CPU_AND_GPU_CODE_ inline void processPixelGrey(DEVICEPTR(Vector4u) &outRenderin
 
 	if (foundPoint) drawPixelGrey(outRendering, angle);
 	//TODO change this reset so many objs can be rendered into 1 img
-	else outRendering = Vector4u((uchar)0);
+//	else outRendering = Vector4u((uchar)0);
 }
 
 template<class TVoxel, class TIndex>

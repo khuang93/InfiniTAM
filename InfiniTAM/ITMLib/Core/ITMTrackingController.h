@@ -90,6 +90,7 @@ class ITMTrackingController {
     }
   }
 
+  //multi prepare
   template<typename TVoxel, typename TIndex>
   void Prepare(ITMTrackingState *trackingState,
                ITMRenderState *renderState,
@@ -105,8 +106,8 @@ class ITMTrackingController {
       sceneIsBackground = i == 0 ? true : false;
       ObjSLAM::ObjectInstance_ptr<TVoxel, TIndex> obj_inst_ptr = obj_inst_ptr_vector.at(i);
 
-      const auto *scene = obj_inst_ptr->getScene().get();
-      const auto *view = obj_inst_ptr->getCurrentView().get();
+      const auto *scene = obj_inst_ptr->GetScene().get();
+      const auto *view = obj_inst_ptr->GetCurrentView().get();
 
       if (requiresFullRendering) {
         visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
@@ -122,44 +123,7 @@ class ITMTrackingController {
     }
   }
 
-  //TODO New Prepare : this only works when first scene is BG, check why
-  template<typename TVoxel, typename TIndex>
-  void Prepare(ITMTrackingState *trackingState,
-               ITMRenderState *renderState,
-               std::vector<ITMScene<TVoxel, TIndex> *> scene_vec,
-               std::vector<ITMView *> view_vec,
-               const ITMVisualisationEngine<TVoxel, TIndex> *visualisationEngine) {
 
-//    std::cout << "requiresPointCloudRendering"<<tracker->requiresPointCloudRendering();
-    if (!tracker->requiresPointCloudRendering())
-      return;
-    //render for tracking
-    bool requiresColourRendering = tracker->requiresColourRendering();
-    bool requiresFullRendering = trackingState->TrackerFarFromPointCloud() || !settings->useApproximateRaycast;
-//    std::cout << "requiresColourRendering"<<requiresColourRendering<<"requiresFullRendering"<<requiresFullRendering;
-    if (scene_vec.size() != view_vec.size()) {
-      return;
-    }
-
-    //cannot really add OMP because shared tracking and renderstate
-    for (size_t i = 0; i < scene_vec.size() && i < view_vec.size(); ++i) {
-      sceneIsBackground = i == 0 ? true : false;
-      auto *scene = scene_vec.at(i);
-      auto *view = view_vec.at(i);
-//      Prepare(trackingState,scene,view, visualisationEngine,renderState);
-      if (requiresFullRendering) {
-        visualisationEngine->CreateICPMaps(scene, view, trackingState, renderState);
-        trackingState->pose_pointCloud->SetFrom(trackingState->pose_d);
-      } else {
-        visualisationEngine->ForwardRender(scene, view, trackingState, renderState);
-        trackingState->age_pointCloud++;
-      }
-    }
-    if (requiresFullRendering) {
-      if (trackingState->age_pointCloud == -1) trackingState->age_pointCloud = -2;
-      else trackingState->age_pointCloud = 0;
-    }
-  }
 
 
   ITMTrackingController(ITMTracker *tracker, const ITMLibSettings *settings) {

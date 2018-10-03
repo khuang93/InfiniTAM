@@ -7,7 +7,7 @@ then
   exit
 fi
 
-# Detect whether this is being run on Linux or Mac OS X.
+# Detect whether this is being Run on Linux or Mac OS X.
 PLATFORM=linux
 if [ "$(uname)" == "Darwin" ]
 then

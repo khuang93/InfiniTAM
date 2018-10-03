@@ -2,6 +2,7 @@
 
 #pragma once
 
+
 #include "../../../Objects/RenderStates/ITMRenderState_VH.h"
 #include "../../../Objects/Scene/ITMScene.h"
 #include "../../../Objects/Tracking/ITMTrackingState.h"
@@ -85,6 +86,9 @@ namespace ITMLib
 		/** This will render an image using raycasting. */
 		virtual void RenderImage(const ITMScene<TVoxel,TIndex> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
 			const ITMRenderState *renderState, ITMUChar4Image *outputImage, RenderImageType type = RENDER_SHADED_GREYSCALE, RenderRaycastSelection raycastType = RENDER_FROM_NEW_RAYCAST) const = 0;
+
+/*		virtual void RenderImageMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, ITMVoxelBlockHash>> obj_inst_ptr_vector, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
+								 const ITMRenderState *renderState, ITMUChar4Image *outputImage, RenderImageType type = RENDER_SHADED_GREYSCALE, RenderRaycastSelection raycastType = RENDER_FROM_NEW_RAYCAST) const = 0;*/
 
 		/** Finds the scene surface using raycasting. */
 		virtual void FindSurface(const ITMScene<TVoxel,TIndex> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,

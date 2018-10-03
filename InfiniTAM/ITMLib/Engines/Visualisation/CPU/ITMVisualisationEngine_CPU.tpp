@@ -284,6 +284,87 @@ static void GenericRaycast(const ITMScene<TVoxel, TIndex> *scene, const Vector2i
 	}
 }
 
+template<class TVoxel, class TIndex>
+static void GenericRaycastMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, TIndex>>& obj_inst_ptr_vector, const Vector2i& imgSize, const Matrix4f& invM, const Vector4f& projParams, const ITMRenderState *renderState, bool updateVisibleList)
+{
+	const Vector2f *minmaximg = renderState->renderingRangeImage->GetData(MEMORYDEVICE_CPU);
+	float mu;
+	float oneOverVoxelSize;
+	std::vector<const CONSTPTR(TVoxel)*> voxelData_vec;
+	std::vector</*const*/ ITMHashEntry*> voxelIndex_vec;
+	voxelData_vec.reserve(obj_inst_ptr_vector.size());
+	voxelIndex_veccast .reserve(obj_inst_ptr_vector.size());
+	std::vector<uchar*> entriesVisibleType_vec;
+	Vector4f *pointsRay = renderState->raycastResult->GetData(MEMORYDEVICE_CPU);
+	for (size_t i = 0; i < obj_inst_ptr_vector.size(); ++i) {
+		sceneIsBackground = i == 0 ? true : false;
+		ObjSLAM::ObjectInstance_ptr<TVoxel, TIndex> obj_inst_ptr = obj_inst_ptr_vector.at(i);
+
+		auto scene = obj_inst_ptr->GetScene();
+
+		const TVoxel* voxelData = scene->localVBA.GetVoxelBlocks();
+		voxelData_vec.push_back(voxelData);
+		/*const*/ ITMHashEntry* voxelIndex = scene->index.getIndexData();
+		voxelIndex_vec.push_back(voxelIndex);
+
+
+		mu = scene->sceneParams->mu;
+		oneOverVoxelSize = 1.0f / scene->sceneParams->voxelSize;
+
+
+//TODO check why no value in voxelIndex, voxelData is good
+		uchar *entriesVisibleType = NULL;
+		if (updateVisibleList && (dynamic_cast<const ITMRenderState_VH *>(renderState) != NULL)) {
+			entriesVisibleType = ((ITMRenderState_VH *) renderState)->GetEntriesVisibleType();
+		}
+		entriesVisibleType_vec.push_back(entriesVisibleType);
+
+	}
+
+
+
+
+
+
+
+#ifdef WITH_OPENMP
+#pragma omp parallel for
+#endif
+		for (int locId = 0; locId < imgSize.x*imgSize.y; ++locId)
+		{
+			int y = locId/imgSize.x;
+			int x = locId - y*imgSize.x;
+			int locId2 = (int)floor((float)x / minmaximg_subsample) + (int)floor((float)y / minmaximg_subsample) * imgSize.x;
+
+			/*if (entriesVisibleType!=NULL)*/
+					castRayMulti<TVoxel, TIndex>(
+						pointsRay[locId],
+						entriesVisibleType_vec,
+						x, y,
+						voxelData_vec,
+						voxelIndex_vec,
+						invM,
+						InvertProjectionParams(projParams),
+						oneOverVoxelSize,
+						mu,
+						minmaximg[locId2]
+				);
+			/*else castRayMulti<TVoxel, TIndex, false>(
+						pointsRay[locId],
+						NULL,
+						x, y,
+						voxelData_vec,
+						voxelIndex_vec,
+						invM,
+						InvertProjectionParams(projParams),
+						oneOverVoxelSize,
+						mu,
+						minmaximg[locId2]
+				);*/
+		}
+
+}
+
 
 template<class TVoxel, class TIndex>
 static void RenderImage_common(const ITMScene<TVoxel,TIndex> *scene, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
@@ -380,6 +461,115 @@ static void RenderImage_common(const ITMScene<TVoxel,TIndex> *scene, const ORUti
 }
 
 template<class TVoxel, class TIndex>
+static void RenderImage_common_multi(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, TIndex>>& obj_inst_ptr_vector, const ORUtils::SE3Pose *pose, const ITMIntrinsics *intrinsics,
+							   const ITMRenderState *renderState, ITMUChar4Image *outputImage, IITMVisualisationEngine::RenderImageType type, IITMVisualisationEngine::RenderRaycastSelection raycastType)
+{
+	Vector2i imgSize = outputImage->noDims;
+	Matrix4f invM = pose->GetInvM();
+
+	Vector4f *pointsRay;
+	if (raycastType == IITMVisualisationEngine::RENDER_FROM_OLD_RAYCAST)
+		pointsRay = renderState->raycastResult->GetData(MEMORYDEVICE_CPU);
+	else
+	{
+		if (raycastType == IITMVisualisationEngine::RENDER_FROM_OLD_FORWARDPROJ)
+			pointsRay = renderState->forwardProjection->GetData(MEMORYDEVICE_CPU);
+		else
+		{
+			// this one is generally done for freeview visualisation, so
+			// no, do not update the list of visible blocks
+			GenericRaycastMulti(obj_inst_ptr_vector, imgSize, invM, intrinsics->projectionParamsSimple.all, renderState, false);
+			pointsRay = renderState->raycastResult->GetData(MEMORYDEVICE_CPU);
+		}
+	}
+
+
+
+
+	Vector3f lightSource = -Vector3f(invM.getColumn(2));
+	Vector4u *outRendering = outputImage->GetData(MEMORYDEVICE_CPU);
+
+	for (size_t i = 0; i < obj_inst_ptr_vector.size(); ++i) {
+		sceneIsBackground = i == 0 ? true : false;
+		ObjSLAM::ObjectInstance_ptr<TVoxel, TIndex> obj_inst_ptr = obj_inst_ptr_vector.at(i);
+
+		const auto *scene = obj_inst_ptr->GetScene().get();
+
+
+
+		const TVoxel *voxelData = scene->localVBA.GetVoxelBlocks();
+		const typename TIndex::IndexData *voxelIndex = scene->index.getIndexData();
+
+		if ((type == IITMVisualisationEngine::RENDER_COLOUR_FROM_VOLUME)&&
+			(!TVoxel::hasColorInformation)) type = IITMVisualisationEngine::RENDER_SHADED_GREYSCALE;
+
+		switch (type) {
+			case IITMVisualisationEngine::RENDER_COLOUR_FROM_VOLUME:
+#ifdef WITH_OPENMP
+#pragma omp parallel for
+#endif
+				for (int locId = 0; locId < imgSize.x * imgSize.y; locId++)
+				{
+					Vector4f ptRay = pointsRay[locId];
+					processPixelColour<TVoxel, TIndex>(outRendering[locId], ptRay.toVector3(), ptRay.w > 0, voxelData, voxelIndex);
+				}
+				break;
+			case IITMVisualisationEngine::RENDER_COLOUR_FROM_NORMAL:
+#ifdef WITH_OPENMP
+#pragma omp parallel for
+#endif
+				for (int locId = 0; locId < imgSize.x * imgSize.y; locId++)
+				{
+					Vector4f ptRay = pointsRay[locId];
+					processPixelNormal<TVoxel, TIndex>(outRendering[locId], ptRay.toVector3(), ptRay.w > 0, voxelData, voxelIndex, lightSource);
+				}
+				break;
+			case IITMVisualisationEngine::RENDER_COLOUR_FROM_CONFIDENCE:
+#ifdef WITH_OPENMP
+#pragma omp parallel for
+#endif
+				for (int locId = 0; locId < imgSize.x * imgSize.y; locId++)
+				{
+					Vector4f ptRay = pointsRay[locId];
+					processPixelConfidence<TVoxel, TIndex>(outRendering[locId], ptRay, ptRay.w > 0, voxelData, voxelIndex, lightSource);
+				}
+				break;
+			case IITMVisualisationEngine::RENDER_SHADED_GREYSCALE_IMAGENORMALS:
+#ifdef WITH_OPENMP
+#pragma omp parallel for
+#endif
+				for (int locId = 0; locId < imgSize.x * imgSize.y; locId++)
+				{
+					int y = locId/imgSize.x;
+					int x = locId - y*imgSize.x;
+
+					if (intrinsics->FocalLengthSignsDiffer())
+					{
+						processPixelGrey_ImageNormals<true, true>(outRendering, pointsRay, imgSize, x, y, scene->sceneParams->voxelSize, lightSource);
+					}
+					else
+					{
+						processPixelGrey_ImageNormals<true, false>(outRendering, pointsRay, imgSize, x, y, scene->sceneParams->voxelSize, lightSource);
+					}
+				}
+				break;
+			case IITMVisualisationEngine::RENDER_SHADED_GREYSCALE:
+			default:
+#ifdef WITH_OPENMP
+#pragma omp parallel for
+#endif
+				for (int locId = 0; locId < imgSize.x * imgSize.y; locId++)
+				{
+					Vector4f ptRay = pointsRay[locId];
+					processPixelGrey<TVoxel, TIndex>(outRendering[locId], ptRay.toVector3(), ptRay.w > 0, voxelData, voxelIndex, lightSource);
+				}
+		}
+
+	}
+
+}
+
+template<class TVoxel, class TIndex>
 static void CreatePointCloud_common(const ITMScene<TVoxel,TIndex> *scene, const ITMView *view, ITMTrackingState *trackingState, 
 	ITMRenderState *renderState, bool skipPoints)
 {
@@ -407,7 +597,6 @@ static void CreatePointCloud_common(const ITMScene<TVoxel,TIndex> *scene, const 
 template<class TVoxel, class TIndex>
 static void CreateICPMaps_common(const ITMScene<TVoxel,TIndex> *scene, const ITMView *view, ITMTrackingState *trackingState, ITMRenderState *renderState)
 {
-	/*std::cout<<"CreateICPMaps_common\n";*/
 	Vector2i imgSize = renderState->raycastResult->noDims;
 	Matrix4f invM = trackingState->pose_d->GetInvM();
 
@@ -513,6 +702,23 @@ void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::RenderImage(const ITM
 	IITMVisualisationEngine::RenderRaycastSelection raycastType) const
 {
 	RenderImage_common(scene, pose, intrinsics, renderState, outputImage, type, raycastType);
+}
+
+template<class TVoxel, class TIndex>
+void ITMVisualisationEngine_CPU<TVoxel,TIndex>::RenderImageMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, TIndex>>& obj_inst_ptr_vector, const ORUtils::SE3Pose *pose,  const ITMIntrinsics *intrinsics,
+																			const ITMRenderState *renderState, ITMUChar4Image *outputImage, IITMVisualisationEngine::RenderImageType type,
+																			IITMVisualisationEngine::RenderRaycastSelection raycastType) const
+{
+	RenderImage_common_multi(obj_inst_ptr_vector, pose, intrinsics, renderState, outputImage, type, raycastType);
+}
+
+
+template<class TVoxel>
+void ITMVisualisationEngine_CPU<TVoxel,ITMVoxelBlockHash>::RenderImageMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, ITMVoxelBlockHash>>& obj_inst_ptr_vector, const ORUtils::SE3Pose *pose,  const ITMIntrinsics *intrinsics,
+																	   const ITMRenderState *renderState, ITMUChar4Image *outputImage, IITMVisualisationEngine::RenderImageType type,
+																	   IITMVisualisationEngine::RenderRaycastSelection raycastType) const
+{
+	RenderImage_common_multi(obj_inst_ptr_vector, pose, intrinsics, renderState, outputImage, type, raycastType);
 }
 
 template<class TVoxel, class TIndex>

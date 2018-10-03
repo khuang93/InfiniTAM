@@ -125,7 +125,7 @@ help:
 #=============================================================================
 # Special targets to cleanup operation of make.
 
-# Special rule to run CMake to check the build system integrity.
+# Special rule to Run CMake to check the build system integrity.
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:

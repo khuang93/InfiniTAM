@@ -23,9 +23,9 @@
 #define SDF_EXCESS_LIST_SIZE SDF_LOCAL_BLOCK_NUM/2	// 0x20000 0x10000 0x8000 Size of excess list, used to handle collisions. Also max offset (unsigned short) value.
 
 #define SDF_LOCAL_BLOCK_NUM_BG 0x20000
-#define SDF_BUCKET_NUM_BG SDF_LOCAL_BLOCK_NUM_BG*4
-#define SDF_HASH_MASK_BG SDF_BUCKET_NUM_BG-1
-#define SDF_EXCESS_LIST_SIZE_BG SDF_LOCAL_BLOCK_NUM_BG/2
+#define SDF_BUCKET_NUM_BG 0x80000 //SDF_LOCAL_BLOCK_NUM_BG*4
+#define SDF_HASH_MASK_BG 0x7ffff //SDF_BUCKET_NUM_BG-1
+#define SDF_EXCESS_LIST_SIZE_BG 0x10000 //SDF_LOCAL_BLOCK_NUM_BG/2
 
 
 // for loop closure

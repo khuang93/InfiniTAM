@@ -109,7 +109,7 @@ public class InfiniTAMMainScreen extends Activity
 		processor.detachVisualisation(mGLView, mFPSDisplay);
 		super.onPause();
 		mGLView.onPause();
-//		processor.pause();
+//		processor.Pause();
 	}
 
 	@Override
@@ -158,7 +158,7 @@ class UpdatableTextView
 	{
 		((Activity) mContext).runOnUiThread(new Runnable() {
 		        @Override
-		        public void run() {
+		        public void Run() {
 				(mTextView).setText(text);
 			}
 		});

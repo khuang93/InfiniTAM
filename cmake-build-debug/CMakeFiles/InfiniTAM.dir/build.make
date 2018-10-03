@@ -45,7 +45,7 @@ EQUALS = =
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /mnt/d/LocalDocuments/MT_Local_Repos/InfiniTAM
 
-# The top-level build directory on which CMake was run.
+# The top-level build directory on which CMake was Run.
 CMAKE_BINARY_DIR = /mnt/d/LocalDocuments/MT_Local_Repos/InfiniTAM/cmake-build-debug
 
 # Include any dependencies generated for this target.
