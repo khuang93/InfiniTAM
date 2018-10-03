@@ -315,19 +315,12 @@ static void GenericRaycastMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, 
 		const TVoxel* voxelData = scene->localVBA.GetVoxelBlocks();
 
 		voxelIndex_vec.push_back(voxelIndex);
+		voxelData_vec.push_back(voxelData);
 
 		mu = scene->sceneParams->mu;
 		oneOverVoxelSize = 1.0f / scene->sceneParams->voxelSize;
 
-
-		voxelData_vec.push_back(voxelData);
-
-
-
-
-
-
-//TODO check why no value in voxelIndex, voxelData is good
+		//TODO check why no value in voxelIndex, voxelData is good
 		uchar *entriesVisibleType = NULL;
 		if (updateVisibleList && (dynamic_cast<const ITMRenderState_VH *>(renderState) != NULL)) {
 			entriesVisibleType = ((ITMRenderState_VH *) renderState)->GetEntriesVisibleType();
@@ -335,10 +328,6 @@ static void GenericRaycastMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, 
 //		entriesVisibleType_vec.push_back(entriesVisibleType);
 
 	}
-
-
-
-
 
 
 
@@ -350,7 +339,7 @@ static void GenericRaycastMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, 
 			int y = locId/imgSize.x;
 			int x = locId - y*imgSize.x;
 			int locId2 = (int)floor((float)x / minmaximg_subsample) + (int)floor((float)y / minmaximg_subsample) * imgSize.x;
-
+//TODO here the both vectors are empty again...why WTF!!!!
 			/*if (entriesVisibleType!=NULL)*/
 					castRayMulti<TVoxel, TIndex>(
 						pointsRay[locId],

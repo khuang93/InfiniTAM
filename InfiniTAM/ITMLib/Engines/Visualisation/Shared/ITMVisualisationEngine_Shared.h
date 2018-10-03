@@ -178,6 +178,7 @@ _CPU_AND_GPU_CODE_ inline bool castRayMulti(DEVICEPTR(Vector4f) &pt_out, std::ve
 									   int x, int y, std::vector<const CONSTPTR(TVoxel) *>& voxelData_vec, std::vector</*const*/ CONSTPTR(typename TIndex::IndexData) *>& voxelIndex_vec,
 									   Matrix4f invM, Vector4f invProjParams, float oneOverVoxelSize, float mu, const CONSTPTR(Vector2f) & viewFrustum_minmax)
 {
+	//TODO the vectors are empty
 	Vector4f pt_camera_f; Vector3f pt_block_s, pt_block_e, rayDirection, pt_result;
 	bool pt_found;
 	int vmIndex;
