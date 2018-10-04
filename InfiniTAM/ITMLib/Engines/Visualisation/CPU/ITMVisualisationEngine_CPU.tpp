@@ -321,10 +321,10 @@ static void GenericRaycastMulti(std::vector<ObjSLAM::ObjectInstance_ptr<TVoxel, 
 		oneOverVoxelSize = 1.0f / scene->sceneParams->voxelSize;
 
 		//TODO check why no value in voxelIndex, voxelData is good
-		uchar *entriesVisibleType = NULL;
-		if (updateVisibleList && (dynamic_cast<const ITMRenderState_VH *>(renderState) != NULL)) {
-			entriesVisibleType = ((ITMRenderState_VH *) renderState)->GetEntriesVisibleType();
-		}
+//		uchar *entriesVisibleType = NULL;
+//		if (updateVisibleList && (dynamic_cast<const ITMRenderState_VH *>(renderState) != NULL)) {
+//			entriesVisibleType = ((ITMRenderState_VH *) renderState)->GetEntriesVisibleType();
+//		}
 //		entriesVisibleType_vec.push_back(entriesVisibleType);
 
 	}
