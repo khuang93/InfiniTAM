@@ -171,14 +171,105 @@ _CPU_AND_GPU_CODE_ inline bool castRay(DEVICEPTR(Vector4f) &pt_out, DEVICEPTR(uc
 
         pt_found = true;
     } else pt_found = false;
-    //TODO z choose the smallest distance.
-    pt_out.x = pt_result.x;
-    pt_out.y = pt_result.y;
-    pt_out.z = /*(pt_out.z>pt_result.z) ? */pt_result.z /*: pt_out.z*/;
-    if (pt_found) pt_out.w = confidence + 1.0f; else pt_out.w = 0.0f;
+
+    Matrix4f M;
+    invM.inv(M);
+    Vector4f pt_result_4;
+    pt_result_4.x=pt_result.x;pt_result_4.y=pt_result.y;pt_result_4.z=pt_result.z;
+    pt_result_4.w=0;
+
+    double dist_old = NORM3(TO_VECTOR3(M*pt_out));
+    double dist_new = NORM3(TO_VECTOR3(M*pt_result_4));
+    if(dist_new<dist_old || dist_old==0){
+        //TODO z choose the smallest distance.
+        pt_out.x = pt_result.x;
+        pt_out.y = pt_result.y;
+        pt_out.z = pt_result.z;
+        if (pt_found) pt_out.w = confidence + 1.0f; else pt_out.w = 0.0f;
+    }
 
     return pt_found;
 }
+
+/*template<class TVoxel, class TIndex, bool modifyVisibleEntries>
+_CPU_AND_GPU_CODE_ inline bool castRay(DEVICEPTR(Vector4f) &pt_out, DEVICEPTR(uchar) *entriesVisibleType,
+                                       int x, int y, const CONSTPTR(TVoxel) *voxelData,
+                                       const CONSTPTR(typename TIndex::IndexData) *voxelIndex,
+                                       Matrix4f invM, Vector4f invProjParams, float oneOverVoxelSize, float mu,
+                                       const CONSTPTR(Vector2f) &viewFrustum_minmax) {
+    Vector4f pt_camera_f;
+    Vector3f pt_block_s, pt_block_e, rayDirection, pt_result;
+    bool pt_found;
+    int vmIndex;
+    float sdfValue = 1.0f, confidence;
+    float totalLength, stepLength, totalLengthMax, stepScale;
+
+    stepScale = mu * oneOverVoxelSize;
+
+    pt_camera_f.z = viewFrustum_minmax.x;
+    pt_camera_f.x = pt_camera_f.z * ((float(x) + invProjParams.z) * invProjParams.x);
+    pt_camera_f.y = pt_camera_f.z * ((float(y) + invProjParams.w) * invProjParams.y);
+    pt_camera_f.w = 1.0f;
+    totalLength = length(TO_VECTOR3(pt_camera_f)) * oneOverVoxelSize;
+    pt_block_s = TO_VECTOR3(invM * pt_camera_f) * oneOverVoxelSize;
+
+    pt_camera_f.z = viewFrustum_minmax.y;
+    pt_camera_f.x = pt_camera_f.z * ((float(x) + invProjParams.z) * invProjParams.x);
+    pt_camera_f.y = pt_camera_f.z * ((float(y) + invProjParams.w) * invProjParams.y);
+    pt_camera_f.w = 1.0f;
+    totalLengthMax = length(TO_VECTOR3(pt_camera_f)) * oneOverVoxelSize;
+    pt_block_e = TO_VECTOR3(invM * pt_camera_f) * oneOverVoxelSize;
+
+    rayDirection = pt_block_e - pt_block_s;
+    float direction_norm = 1.0f / sqrt(rayDirection.x * rayDirection.x + rayDirection.y * rayDirection.y +
+                                       rayDirection.z * rayDirection.z);
+    rayDirection *= direction_norm;
+
+    pt_result = pt_block_s;
+
+    typename TIndex::IndexCache cache;
+
+    while (totalLength < totalLengthMax) {
+        sdfValue = readFromSDF_float_uninterpolated(voxelData, voxelIndex, pt_result, vmIndex, cache);
+
+        if (modifyVisibleEntries) {
+            if (vmIndex) entriesVisibleType[vmIndex - 1] = 1;
+        }
+
+        if (!vmIndex) {
+            stepLength = SDF_BLOCK_SIZE;
+        } else {
+            if ((sdfValue <= 0.1f) && (sdfValue >= -0.5f)) {
+                sdfValue = readFromSDF_float_interpolated(voxelData, voxelIndex, pt_result, vmIndex, cache);
+            }
+            if (sdfValue <= 0.0f) break;
+            stepLength = MAX(sdfValue * stepScale, 1.0f);
+        }
+//		std::cout<<sdfValue<<std::endl;
+        pt_result += stepLength * rayDirection;
+        totalLength += stepLength;
+    }
+
+    if (sdfValue <= 0.0f) {
+        stepLength = sdfValue * stepScale;
+        pt_result += stepLength * rayDirection;
+
+        sdfValue = readWithConfidenceFromSDF_float_interpolated(confidence, voxelData, voxelIndex, pt_result, vmIndex,
+                                                                cache);
+
+        stepLength = sdfValue * stepScale;
+        pt_result += stepLength * rayDirection;
+
+        pt_found = true;
+    } else pt_found = false;
+    //TODO z choose the smallest distance.
+    pt_out.x = pt_result.x;
+    pt_out.y = pt_result.y;
+    pt_out.z = pt_result.z;
+    if (pt_found) pt_out.w = confidence + 1.0f; else pt_out.w = 0.0f;
+
+    return pt_found;
+}*/
 
 template<class TVoxel, class TIndex>
 _CPU_AND_GPU_CODE_ inline bool
@@ -505,14 +596,15 @@ _CPU_AND_GPU_CODE_ inline void processPixelICP(DEVICEPTR(Vector4f) *pointsMap, D
         outNormal4.w = 0.0f;
 
         //use the smallest depth --> the surface closest to the camera
-//		if(pointsMap[locId].w>0.0f && pointsMap[locId].z>outPoint4.z){
-        pointsMap[locId] = outPoint4;
-        normalsMap[locId] = outNormal4;
+//		if(pointsMap[locId].w>0.0f && NORM3(TO_VECTOR3(pointsMap[locId])) > NORM3(TO_VECTOR3(outPoint4))){
+            pointsMap[locId] = outPoint4;
+            normalsMap[locId] = outNormal4;
 //		}
     } else if (pointsMap[locId].w >
                0.0f) { //the current view is empty here but this point is already set with previous ones
         return;
-    } else {//TODO Each obj this will reset the empty areas! change it! --> not enough
+    } else {
+        //TODO Each obj this will reset the empty areas! change it! --> not enough
         Vector4f out4;
         out4.x = 0.0f;
         out4.y = 0.0f;
